@@ -208,6 +208,10 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
   <div class="tbl-header">
     <div class="sec-label" style="margin-bottom:0">📋 รายละเอียด Shipment</div>
     <div class="tbl-right">
+      <div style="position:relative">
+        <input type="text" id="searchBox" placeholder="🔍 ค้นหา Shipment ID..." oninput="searchTable(this.value)"
+          style="font-size:12px;padding:5px 10px 5px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;width:200px;outline:none">
+      </div>
       <div class="pp-wrap">แสดง
         <select id="ppsel" onchange="changePerPage(this.value)">
           <option value="20" selected>20</option>
@@ -571,11 +575,35 @@ function applyFilter(from,to,label){
 
   // Table
   page=1;sCol=-1;sAsc=true;
+  const sb=document.getElementById('searchBox');
+  if(sb) sb.value='';
   document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sa','sd'));
   renderT();renderPgn();
 }
 
 // ── TABLE ──
+function searchTable(q) {
+  const kw = q.trim().toLowerCase();
+  if(!kw) {
+    // restore full filtered data
+    const [f,t] = activePeriod;
+    data = RAW.filter(r => {
+      const inDate = r[0]>=f && r[0]<=t;
+      const inType = activeType==='all' || r[2]===activeType;
+      return inDate && inType;
+    });
+  } else {
+    const [f,t] = activePeriod;
+    data = RAW.filter(r => {
+      const inDate = r[0]>=f && r[0]<=t;
+      const inType = activeType==='all' || r[2]===activeType;
+      const inSearch = r[1].toLowerCase().includes(kw) || r[2].toLowerCase().includes(kw) || r[0].includes(kw);
+      return inDate && inType && inSearch;
+    });
+  }
+  page=1; renderT(); renderPgn();
+}
+
 function sortT(col){
   const ths=document.querySelectorAll('thead th');
   ths.forEach(th=>th.classList.remove('sa','sd'));
