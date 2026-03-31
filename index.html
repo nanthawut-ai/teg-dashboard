@@ -209,10 +209,7 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
             <span onclick="selectAllDd('type')">เลือกทั้งหมด</span>
             <span onclick="clearDd('type')">ล้างทั้งหมด</span>
           </div>
-          <label class="dd-item"><input type="checkbox" value="EK" onchange="applyDdFilter()" checked> 🚛 EK (ทางรถ)</label>
-          <label class="dd-item"><input type="checkbox" value="AW" onchange="applyDdFilter()" checked> ✈ AW (ทางอากาศ)</label>
-          <label class="dd-item"><input type="checkbox" value="SEA" onchange="applyDdFilter()" checked> 🚢 SEA (ทางเรือ)</label>
-          <label class="dd-item"><input type="checkbox" value="Others" onchange="applyDdFilter()" checked> 📦 Others</label>
+          <div id="dd-type-options"></div>
         </div>
       </div>
     </div>
@@ -412,12 +409,15 @@ async function fetchSheetData() {
 function processData(rows) {
   if(rows.length < 2) return;
 
-  // detect header positions
-  const hdr = rows[0].map(h=>(h||'').toString().toLowerCase().trim());
-  // find Co.,Ltd column - could be col 7 (old) or new position
-  // Try to detect by header name
-  let coIdx = hdr.findIndex(h=>h.includes('co') || h.includes('ltd') || h==='co., ltd.');
-  if(coIdx === -1) coIdx = 7; // fallback to col 7
+  // detect header positions — col 7 is Co.,Ltd (TEG/8168/ทวีพร)
+  // Header row: Date(0) ShipID(1) รายการ(2) ลูกค้า(3) Income(4) Expense(5) Owner(6) Co.,Ltd(7) ...
+  // Find by exact header match first, fallback to col 7
+  const hdr = rows[0].map(h=>(h||'').toString().trim());
+  let coIdx = hdr.findIndex(h => /^co[\.,]/i.test(h) || h.toLowerCase()==='co., ltd.' || h.toLowerCase()==='co,ltd');
+  if(coIdx === -1) {
+    // fallback: col 7 is typically TEG/8168/ทวีพร
+    coIdx = 7;
+  }
 
   RAW = [];
   DAILY_RAW = {};
@@ -451,10 +451,14 @@ function processData(rows) {
   });
 
   // build unique lists for dropdowns
+  const allTypes = ['EK','AW','SEA','Others'];
+  const typeLabels = {'EK':'🚛 EK (ทางรถ)','AW':'✈ AW (ทางอากาศ)','SEA':'🚢 SEA (ทางเรือ)','Others':'📦 Others'};
   allItems = [...new Set(RAW.map(r=>r[8]).filter(Boolean))].sort();
   allCos   = [...new Set(RAW.map(r=>r[9]).filter(Boolean))].sort();
+  selTypes = new Set(allTypes);
   selItems = new Set(allItems);
   selCos   = new Set(allCos);
+  buildDropdown('type', allTypes, selTypes, typeLabels);
   buildDropdown('item', allItems, selItems);
   buildDropdown('co',   allCos,   selCos);
 
@@ -528,11 +532,11 @@ function clamp(d){return d<DATA_MIN?DATA_MIN:d>DATA_MAX?DATA_MAX:d;}
 function toISO(d){return d.toISOString().slice(0,10);}
 
 // ── DROPDOWN FUNCTIONS ──
-function buildDropdown(key, items, selSet) {
+function buildDropdown(key, items, selSet, labels={}) {
   const container = document.getElementById(`dd-${key}-options`);
   if(!container) return;
   container.innerHTML = items.map(v =>
-    `<label class="dd-item"><input type="checkbox" value="${v.replace(/"/g,'&quot;')}" onchange="applyDdFilter()" ${selSet.has(v)?'checked':''}> ${v||'(ว่าง)'}</label>`
+    `<label class="dd-item"><input type="checkbox" value="${v.replace(/"/g,'&quot;')}" onchange="applyDdFilter()" ${selSet.has(v)?'checked':''}> ${labels[v]||v||'(ว่าง)'}</label>`
   ).join('');
   updateDdLabel(key, selSet, items);
 }
@@ -540,12 +544,10 @@ function buildDropdown(key, items, selSet) {
 function toggleDd(id) {
   const wrap = document.getElementById(id);
   const isOpen = wrap.classList.contains('open');
-  // close all
   document.querySelectorAll('.dd-wrap').forEach(w=>w.classList.remove('open'));
   if(!isOpen) wrap.classList.add('open');
 }
 
-// close dropdowns when clicking outside
 document.addEventListener('click', e => {
   if(!e.target.closest('.dd-wrap')) {
     document.querySelectorAll('.dd-wrap').forEach(w=>w.classList.remove('open'));
@@ -553,28 +555,25 @@ document.addEventListener('click', e => {
 });
 
 function selectAllDd(key) {
-  const container = document.getElementById(`dd-${key}-options`);
-  container.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true);
+  document.querySelectorAll(`#dd-${key}-options input[type=checkbox]`).forEach(cb=>cb.checked=true);
   applyDdFilter();
 }
 function clearDd(key) {
-  const container = document.getElementById(`dd-${key}-options`);
-  container.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+  document.querySelectorAll(`#dd-${key}-options input[type=checkbox]`).forEach(cb=>cb.checked=false);
   applyDdFilter();
 }
 function filterDdSearch(key, q) {
-  const container = document.getElementById(`dd-${key}-options`);
-  container.querySelectorAll('.dd-item').forEach(el => {
+  document.querySelectorAll(`#dd-${key}-options .dd-item`).forEach(el => {
     el.style.display = el.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
   });
 }
 
 function applyDdFilter() {
-  // read type checkboxes
-  selTypes = new Set([...document.querySelectorAll('#dd-type-menu input:checked')].map(cb=>cb.value));
-  selItems = new Set([...document.querySelectorAll('#dd-item-menu input:checked')].map(cb=>cb.value));
-  selCos   = new Set([...document.querySelectorAll('#dd-co-menu input:checked')].map(cb=>cb.value));
-  updateDdLabel('type', selTypes, ['EK','AW','SEA','Others']);
+  const allTypes = ['EK','AW','SEA','Others'];
+  selTypes = new Set([...document.querySelectorAll('#dd-type-options input:checked')].map(cb=>cb.value));
+  selItems = new Set([...document.querySelectorAll('#dd-item-options input:checked')].map(cb=>cb.value));
+  selCos   = new Set([...document.querySelectorAll('#dd-co-options input:checked')].map(cb=>cb.value));
+  updateDdLabel('type', selTypes, allTypes);
   updateDdLabel('item', selItems, allItems);
   updateDdLabel('co',   selCos,   allCos);
   applyFilter(...activePeriod);
@@ -584,7 +583,7 @@ function updateDdLabel(key, selSet, allList) {
   const lbl = document.getElementById(`dd-${key}-label`);
   if(!lbl) return;
   if(selSet.size === 0) lbl.textContent = 'ไม่ได้เลือก';
-  else if(selSet.size === allList.length) lbl.textContent = 'ทั้งหมด';
+  else if(selSet.size >= allList.length) lbl.textContent = 'ทั้งหมด';
   else if(selSet.size === 1) lbl.textContent = [...selSet][0];
   else lbl.textContent = `${selSet.size} รายการ`;
 }
