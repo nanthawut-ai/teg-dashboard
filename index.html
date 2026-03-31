@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEG Cargo — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun','Segoe UI',sans-serif;background:#F0EEE9;color:#1a1a1a;font-size:14px}
+.dash{max-width:1200px;margin:0 auto;padding:1.5rem}
+
+/* TOPBAR */
+.topbar{background:#fff;border-radius:14px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid #e8e8e8}
+.topbar-row1{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.topbar-left h1{font-size:18px;font-weight:700;color:#111;letter-spacing:-0.3px}
+.topbar-left p{font-size:12px;color:#999;margin-top:2px}
+.topbar-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f3f3f3}
+.row2-label{font-size:11px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.pill-group{display:flex;align-items:center;background:#f4f3f0;border-radius:10px;padding:3px;gap:2px}
+.pill{font-size:12px;padding:5px 14px;border:none;border-radius:8px;background:transparent;color:#666;cursor:pointer;transition:all .15s;white-space:nowrap}
+.pill:hover{background:#e8e7e4;color:#333}
+.pill.active{background:#111;color:#fff;font-weight:500}
+.date-range{display:none;align-items:center;gap:6px;margin-left:4px}
+.date-range input[type=date]{font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;cursor:pointer}
+.sep{font-size:12px;color:#bbb}
+.btn-apply{font-size:12px;padding:5px 14px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer;font-weight:600}
+
+/* TYPE FILTER */
+.type-filter{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.type-label{font-size:11px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.type-btn{font-size:12px;padding:5px 14px;border:1.5px solid #e0e0e0;border-radius:20px;background:#fff;color:#666;cursor:pointer;transition:all .15s;font-weight:500}
+.type-btn:hover{border-color:#aaa;color:#333}
+.type-btn.active-all{background:#111;color:#fff;border-color:#111}
+.type-btn.active-EK{background:#3B82F6;color:#fff;border-color:#3B82F6}
+.type-btn.active-SEA{background:#0F6E56;color:#fff;border-color:#0F6E56}
+.type-btn.active-Others{background:#8B5CF6;color:#fff;border-color:#8B5CF6}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e8e8e8;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e8e8e8}
+.kpi.g::before{background:#1D9E75}.kpi.r::before{background:#E24B4A}.kpi.b::before{background:#3B82F6}
+.kpi-label{font-size:10px;color:#aaa;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:16px;font-weight:700;color:#111;line-height:1.2}
+.kpi-sub{font-size:11px;margin-top:5px;color:#aaa}
+.kpi-sub.up{color:#0F6E56}.kpi-sub.dn{color:#C0392B}.kpi-sub.warn{color:#C0392B;font-weight:600}
+
+/* TYPE KPI ROW */
+.type-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:600px){.type-kpi-row{grid-template-columns:1fr}}
+.type-kpi{background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8e8e8}
+.type-kpi-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.type-kpi-name{font-size:12px;font-weight:700;letter-spacing:.04em}
+.type-kpi-name.EK{color:#3B82F6}.type-kpi-name.SEA{color:#0F6E56}.type-kpi-name.Others{color:#8B5CF6}
+.type-kpi-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.type-kpi-badge.profit{background:#DCFCE7;color:#166534}.type-kpi-badge.loss{background:#FEE2E2;color:#991B1B}
+.type-kpi-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.type-num{text-align:center}
+.type-num-label{font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.type-num-val{font-size:13px;font-weight:700;color:#111}
+.type-num-val.pos{color:#0F6E56}.type-num-val.neg{color:#C0392B}
+.type-bar{height:4px;border-radius:2px;margin-top:10px;background:#f0eeea;overflow:hidden}
+.type-bar-fill{height:100%;border-radius:2px}
+.type-bar-fill.EK{background:#3B82F6}
+.type-bar-fill.SEA{background:#1D9E75}
+.type-bar-fill.Others{background:#8B5CF6}
+
+/* ALERT */
+.alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:12px 16px;margin-bottom:1rem;display:flex;gap:10px;align-items:flex-start}
+.alert-body{font-size:13px;color:#7F1D1D;line-height:1.65}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:12px;padding:1.25rem 1.5rem;border:1px solid #e8e8e8}
+.card-mb{margin-bottom:1rem}
+.sec-label{font-size:10px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+
+/* BARS */
+.hbar{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.hbar-label{font-size:11px;color:#555;width:85px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.hbar-track{flex:1;height:7px;background:#f0eeea;border-radius:4px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:4px}
+.hbar-fill.g{background:#1D9E75}.hbar-fill.r{background:#E24B4A}
+.hbar-val{font-size:11px;min-width:90px;text-align:right;flex-shrink:0}
+.hbar-val.g{color:#0F6E56}.hbar-val.r{color:#C0392B}
+
+/* CHART */
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:#777}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* TABLE */
+.tbl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.tbl-right{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pp-wrap{display:flex;align-items:center;gap:6px;font-size:12px;color:#777}
+.pp-wrap select{font-size:12px;padding:4px 7px;border:1px solid #ddd;border-radius:7px;background:#fff;cursor:pointer}
+.tbl-info{font-size:11px;color:#bbb}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-size:10px;color:#aaa;text-align:left;padding:8px 10px;border-bottom:2px solid #f0f0f0;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fafafa}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:#333;background:#f0eeea}
+.si{margin-left:3px;font-size:9px;color:#ddd}
+th.sa .si::after{content:'▲';color:#1D9E75}
+th.sd .si::after{content:'▼';color:#E24B4A}
+th:not(.sa):not(.sd) .si::after{content:'⇅'}
+tbody td{padding:9px 10px;border-bottom:1px solid #f7f7f7;color:#333}
+tbody tr:hover td{background:#fafafa}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.bp{background:#DCFCE7;color:#166534}.bl{background:#FEE2E2;color:#991B1B}
+.type-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;font-weight:700}
+.tag-EK{background:#EFF6FF;color:#2563EB}
+.tag-SEA{background:#ECFDF5;color:#065F46}
+.tag-Others{background:#F5F3FF;color:#6D28D9}
+.pagination{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:14px;flex-wrap:wrap}
+.pb{font-size:12px;padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#555;cursor:pointer;min-width:34px;text-align:center;transition:all .12s}
+.pb:hover:not(:disabled){border-color:#aaa;background:#f5f5f5}
+.pb.active{background:#111;color:#fff;border-color:#111}
+.pb:disabled{opacity:.3;cursor:not-allowed}
+.pe{font-size:12px;color:#ccc;padding:0 2px}
+</style>
+</head>
+<body>
+<div class="dash">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-row1">
+    <div class="topbar-left">
+      <h1>TEG Cargo — Dashboard</h1>
+      <p id="plabel">23 – 30 มีนาคม 2569 &nbsp;·&nbsp; อัปเดตล่าสุด: 30 มี.ค. 2569</p>
+    </div>
+  </div>
+  <div class="topbar-row2">
+    <span class="row2-label">ช่วงเวลา</span>
+    <div class="pill-group">
+      <button class="pill active" onclick="setPeriod('today',this)">วันนี้</button>
+      <button class="pill" onclick="setPeriod('week',this)">อาทิตย์นี้</button>
+      <button class="pill" onclick="setPeriod('month',this)">เดือนนี้</button>
+      <button class="pill" onclick="setPeriod('lastmonth',this)">เดือนที่แล้ว</button>
+      <button class="pill" onclick="setPeriod('year',this)">ปีนี้</button>
+      <button class="pill" onclick="setPeriod('custom',this)">กำหนดเอง</button>
+    </div>
+    <div class="date-range" id="drange">
+      <input type="date" id="dfrom" value="2026-03-23">
+      <span class="sep">–</span>
+      <input type="date" id="dto" value="2026-03-30">
+      <button class="btn-apply" onclick="applyCustom()">ดู</button>
+    </div>
+  </div>
+</div>
+
+<!-- TYPE FILTER -->
+<div class="type-filter">
+  <span class="type-label">ประเภท</span>
+  <button class="type-btn active-all" onclick="setType('all',this)">ทั้งหมด</button>
+  <button class="type-btn" onclick="setType('EK',this)">✈ EK (นำเข้าทางอากาศ)</button>
+  <button class="type-btn" onclick="setType('SEA',this)">🚢 SEA (นำเข้าทางเรือ)</button>
+  <button class="type-btn" onclick="setType('Others',this)">📦 Others</button>
+</div>
+
+<!-- KPI -->
+<div class="kpi-grid">
+  <div class="kpi g"><div class="kpi-label">รายรับรวม</div><div class="kpi-value" id="kInc">—</div><div class="kpi-sub" id="kIncSub"></div></div>
+  <div class="kpi"><div class="kpi-label">รายจ่ายรวม</div><div class="kpi-value" id="kExp">—</div><div class="kpi-sub" id="kExpSub"></div></div>
+  <div class="kpi g"><div class="kpi-label">กำไรสุทธิ</div><div class="kpi-value" id="kPrf">—</div><div class="kpi-sub" id="kPrfSub"></div></div>
+  <div class="kpi b"><div class="kpi-label">Margin เฉลี่ย</div><div class="kpi-value" id="kMgn">—</div><div class="kpi-sub">เกณฑ์แนะนำ &gt; 25%</div></div>
+  <div class="kpi"><div class="kpi-label">จำนวน Shipment</div><div class="kpi-value" id="kCnt">—</div><div class="kpi-sub" id="kCntSub"></div></div>
+  <div class="kpi r"><div class="kpi-label">Shipment ขาดทุน</div><div class="kpi-value td-neg" id="kLoss">—</div><div class="kpi-sub warn" id="kLossSub"></div></div>
+</div>
+
+<!-- TYPE BREAKDOWN -->
+<div class="type-kpi-row" id="typeKpiRow"></div>
+
+<!-- ALERT -->
+<div class="alert" id="alertBox" style="display:none">
+  <div style="font-size:14px;flex-shrink:0">⚠</div>
+  <div class="alert-body" id="alertText"></div>
+</div>
+
+<!-- TOP/BOTTOM BARS -->
+<div class="two-col">
+  <div class="card"><div class="sec-label">🏆 Top 5 กำไรสูงสุด</div><div id="topProfit"></div></div>
+  <div class="card"><div class="sec-label">🔴 Top 5 ขาดทุนสูงสุด</div><div id="topLoss"></div></div>
+</div>
+
+<!-- CHART -->
+<div class="card card-mb">
+  <div class="chart-header">
+    <div class="sec-label" style="margin-bottom:0">📊 Cash Flow รายวัน</div>
+    <div class="chart-legend">
+      <div class="leg"><div class="leg-dot" style="background:#1D9E75"></div>รายรับ</div>
+      <div class="leg"><div class="leg-dot" style="background:#E24B4A"></div>รายจ่าย</div>
+      <div class="leg"><div class="leg-dot" style="background:#3B82F6;border-radius:50%"></div>กำไรสุทธิ</div>
+    </div>
+  </div>
+  <div style="position:relative;height:240px"><canvas id="cfChart"></canvas></div>
+</div>
+
+<!-- TABLE -->
+<div class="card">
+  <div class="tbl-header">
+    <div class="sec-label" style="margin-bottom:0">📋 รายละเอียด Shipment</div>
+    <div class="tbl-right">
+      <div class="pp-wrap">แสดง
+        <select id="ppsel" onchange="changePerPage(this.value)">
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        รายการต่อหน้า
+      </div>
+      <div class="tbl-info" id="tblinfo"></div>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th class="sortable" onclick="sortT(0)">วันที่<span class="si"></span></th>
+        <th class="sortable" onclick="sortT(1)">Shipment ID<span class="si"></span></th>
+        <th>ประเภท</th>
+        <th class="sortable" style="text-align:right" onclick="sortT(3)">รายรับ (฿)<span class="si"></span></th>
+        <th class="sortable" style="text-align:right" onclick="sortT(4)">รายจ่าย (฿)<span class="si"></span></th>
+        <th class="sortable" style="text-align:right" onclick="sortT(5)">กำไร (฿)<span class="si"></span></th>
+        <th class="sortable" style="text-align:right" onclick="sortT(6)">Margin<span class="si"></span></th>
+        <th>สถานะ</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pgn"></div>
+</div>
+
+</div>
+
+<script>
+const fmt = n => n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const thDate = s => new Date(s).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
+
+// RAW: [date, shipment_id, type, income, expense, profit, margin|null, status]
+const RAW = [
+['2026-03-23','CLG015-260305-9945','SEA',52578.54,0,52578.54,100.0,'กำไร'],
+['2026-03-23','CLG016-260305-8872','SEA',52578.54,0,52578.54,100.0,'กำไร'],
+['2026-03-23','CLG020-260308-7592','SEA',0,33625,-33625,null,'ขาดทุน'],
+['2026-03-23','CLG028-260311-2290','SEA',0,7064.87,-7064.87,null,'ขาดทุน'],
+['2026-03-23','CLG031-260311-9032','SEA',0,33243,-33243,null,'ขาดทุน'],
+['2026-03-23','CLG033-260312-7986','SEA',0,7560,-7560,null,'ขาดทุน'],
+['2026-03-23','CLG038-260313-4363','SEA',0,22219,-22219,null,'ขาดทุน'],
+['2026-03-23','CLG042-260315-9061','SEA',0,7560,-7560,null,'ขาดทุน'],
+['2026-03-23','CLG043-260315-6346','SEA',0,7560,-7560,null,'ขาดทุน'],
+['2026-03-23','CLG044-260315-0100','SEA',0,7560,-7560,null,'ขาดทุน'],
+['2026-03-23','CLG048','SEA',0,92000,-92000,null,'ขาดทุน'],
+['2026-03-23','EK004-260314-9065','EK',47836.93,201960,-154123.07,null,'ขาดทุน'],
+['2026-03-23','EK005-260318-6238','EK',134957.68,201960,-67002.32,null,'ขาดทุน'],
+['2026-03-23','PLEARN','Others',658,0,658,100.0,'กำไร'],
+['2026-03-23','SEA001-260304-8372','SEA',2528.64,0,2528.64,100.0,'กำไร'],
+['2026-03-23','SEA002-260309-2589','SEA',0,33566,-33566,null,'ขาดทุน'],
+['2026-03-23','SEK231','Others',26760.10,0,26760.10,100.0,'กำไร'],
+['2026-03-23','SEK233','Others',9268.05,0,9268.05,100.0,'กำไร'],
+['2026-03-23','TAG','Others',233,0,233,100.0,'กำไร'],
+['2026-03-23','VINCENT/TRIANGLE','Others',521436.68,0,521436.68,100.0,'กำไร'],
+['2026-03-24','APIWATP','Others',96,0,96,100.0,'กำไร'],
+['2026-03-24','CLG008-260303-4180','SEA',96000,0,96000,100.0,'กำไร'],
+['2026-03-24','CLG010-260304-0918','SEA',96000,4840,91160,95.0,'กำไร'],
+['2026-03-24','CLG012-260304-0227','SEA',96000,0,96000,100.0,'กำไร'],
+['2026-03-24','CLG013-260304-4430','SEA',72000,5360,66640,92.6,'กำไร'],
+['2026-03-24','CLG019-260307-9413','SEA',96000,8840,87160,90.8,'กำไร'],
+['2026-03-24','CLG020-260308-7592','SEA',96000,0,96000,100.0,'กำไร'],
+['2026-03-24','CLG023-260309-9012','SEA',96000,8840,87160,90.8,'กำไร'],
+['2026-03-24','CLG024-260309-2112','SEA',0,7100,-7100,null,'ขาดทุน'],
+['2026-03-24','CLG027-260310-9876','SEA',0,4840,-4840,null,'ขาดทุน'],
+['2026-03-24','CLG030-260311-7080','SEA',96000,8840,87160,90.8,'กำไร'],
+['2026-03-24','CLG031-260311-9032','SEA',96000,0,96000,100.0,'กำไร'],
+['2026-03-24','CLG035-260312-0216','SEA',96000,8840,87160,90.8,'กำไร'],
+['2026-03-24','CLG037-260313-2541','SEA',96000,8840,87160,90.8,'กำไร'],
+['2026-03-24','CLG038-260313-4363','SEA',62000,0,62000,100.0,'กำไร'],
+['2026-03-24','CLG040-260314-3429','SEA',0,60283,-60283,null,'ขาดทุน'],
+['2026-03-24','CLG041-260314-4122','SEA',0,7200,-7200,null,'ขาดทุน'],
+['2026-03-24','CLG046-260316-1521','SEA',0,7000,-7000,null,'ขาดทุน'],
+['2026-03-24','CLG047-260316-0990','SEA',0,7000,-7000,null,'ขาดทุน'],
+['2026-03-24','CLG049-260317-5020','SEA',0,7742,-7742,null,'ขาดทุน'],
+['2026-03-24','CLG050-260318-9038','SEA',0,7742,-7742,null,'ขาดทุน'],
+['2026-03-24','CLG052-260319-2918','SEA',0,7742,-7742,null,'ขาดทุน'],
+['2026-03-24','CLG421-260204-4183','SEA',120000,0,120000,100.0,'กำไร'],
+['2026-03-24','EK004-260314-9065','EK',0,844.42,-844.42,null,'ขาดทุน'],
+['2026-03-24','EK005-260318-6238','EK',75642.77,0,75642.77,100.0,'กำไร'],
+['2026-03-24','FS1992','Others',145903.83,0,145903.83,100.0,'กำไร'],
+['2026-03-24','IMKT','Others',59974.04,0,59974.04,100.0,'กำไร'],
+['2026-03-24','IWHD','Others',28642.66,0,28642.66,100.0,'กำไร'],
+['2026-03-24','MOMI56','Others',18899.97,8716.07,10183.90,53.9,'กำไร'],
+['2026-03-24','PAT444','Others',6957.70,0,6957.70,100.0,'กำไร'],
+['2026-03-24','PLEARN','Others',9776,0,9776,100.0,'กำไร'],
+['2026-03-24','SEA001-260304-8372','SEA',0,9100,-9100,null,'ขาดทุน'],
+['2026-03-24','SEA002-260309-2589','SEA',5787.70,0,5787.70,100.0,'กำไร'],
+['2026-03-24','TAG','Others',42,0,42,100.0,'กำไร'],
+['2026-03-25','AIS001-260225-8370','SEA',0,61880,-61880,null,'ขาดทุน'],
+['2026-03-25','AIS111-260211-5752','SEA',0,83300,-83300,null,'ขาดทุน'],
+['2026-03-25','AMR168','Others',82703.60,0,82703.60,100.0,'กำไร'],
+['2026-03-25','CLG306-251230-9948','SEA',120000,0,120000,100.0,'กำไร'],
+['2026-03-25','CLG320-260107-9610','SEA',120000,0,120000,100.0,'กำไร'],
+['2026-03-25','CLG456-260220-4524','SEA',195000,0,195000,100.0,'กำไร'],
+['2026-03-25','CLG457','SEA',0,40000,-40000,null,'ขาดทุน'],
+['2026-03-25','EK0003-0311-6839','EK',300,0,300,100.0,'กำไร'],
+['2026-03-25','EK004-260314-9065','EK',3013,0,3013,100.0,'กำไร'],
+['2026-03-25','EK005-260318-6238','EK',80840.94,0,80840.94,100.0,'กำไร'],
+['2026-03-25','GOGO7','Others',44,0,44,100.0,'กำไร'],
+['2026-03-25','PAT444','Others',3120,0,3120,100.0,'กำไร'],
+['2026-03-25','PLEARN','Others',45435,0,45435,100.0,'กำไร'],
+['2026-03-25','POND','Others',2985.65,0,2985.65,100.0,'กำไร'],
+['2026-03-25','SEA001-260304-8372','SEA',952.50,0,952.50,100.0,'กำไร'],
+['2026-03-25','SEA002-260309-2589','SEA',42825.96,0,42825.96,100.0,'กำไร'],
+['2026-03-25','SEK234','Others',11193.70,0,11193.70,100.0,'กำไร'],
+['2026-03-25','TE','Others',172,0,172,100.0,'กำไร'],
+['2026-03-25','VINCENT/TRIANGLE','Others',96896.13,0,96896.13,100.0,'กำไร'],
+['2026-03-25','WIP35','Others',7840,0,7840,100.0,'กำไร'],
+['2026-03-25','YENZT','Others',807918.23,0,807918.23,100.0,'กำไร'],
+['2026-03-26','CLG001-260225-4552','SEA',150000,0,150000,100.0,'กำไร'],
+['2026-03-26','CLG022-260309-4342','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-26','CLG024-260309-2112','SEA',0,60481,-60481,null,'ขาดทุน'],
+['2026-03-26','CLG032-260311-9977','SEA',0,12977.50,-12977.50,null,'ขาดทุน'],
+['2026-03-26','CLG039-260313-0959','SEA',0,15840,-15840,null,'ขาดทุน'],
+['2026-03-26','CLG043-260315-6346','SEA',0,60381,-60381,null,'ขาดทุน'],
+['2026-03-26','CLG044-260315-0100','SEA',0,60632,-60632,null,'ขาดทุน'],
+['2026-03-26','CLG046-260316-1521','SEA',0,91276,-91276,null,'ขาดทุน'],
+['2026-03-26','CLG047-260316-0990','SEA',0,30387,-30387,null,'ขาดทุน'],
+['2026-03-26','CLG054','SEA',0,92000,-92000,null,'ขาดทุน'],
+['2026-03-26','DDC','Others',42,0,42,100.0,'กำไร'],
+['2026-03-26','EK004-260314-9065','EK',3571.76,0,3571.76,100.0,'กำไร'],
+['2026-03-26','EK005-260318-6238','EK',19285.52,0,19285.52,100.0,'กำไร'],
+['2026-03-26','PAT444','Others',1275,0,1275,100.0,'กำไร'],
+['2026-03-26','PLEARN','Others',40,0,40,100.0,'กำไร'],
+['2026-03-26','SEA001-260304-8372','SEA',9174.33,0,9174.33,100.0,'กำไร'],
+['2026-03-26','SEA002-260309-2589','SEA',12240.70,0,12240.70,100.0,'กำไร'],
+['2026-03-26','TAG','Others',84,0,84,100.0,'กำไร'],
+['2026-03-26','TG-1078','Others',40,0,40,100.0,'กำไร'],
+['2026-03-26','YENZT','Others',0,1625.59,-1625.59,null,'ขาดทุน'],
+['2026-03-27','AIS001-260225-8370','SEA',290000,0,290000,100.0,'กำไร'],
+['2026-03-27','AIS003','SEA',0,36000,-36000,null,'ขาดทุน'],
+['2026-03-27','AIS004','SEA',0,36000,-36000,null,'ขาดทุน'],
+['2026-03-27','AIS005','SEA',0,36000,-36000,null,'ขาดทุน'],
+['2026-03-27','AIS109-260208-2022','SEA',205000,0,205000,100.0,'กำไร'],
+['2026-03-27','CLG002-260225-6112','SEA',100000,0,100000,100.0,'กำไร'],
+['2026-03-27','CLG013-260304-4430','SEA',0,12395,-12395,null,'ขาดทุน'],
+['2026-03-27','CLG019-260307-9413','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-27','CLG022-260309-4342','SEA',120000,0,120000,100.0,'กำไร'],
+['2026-03-27','CLG023-260309-9012','SEA',0,11435,-11435,null,'ขาดทุน'],
+['2026-03-27','CLG030-260311-7080','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-27','CLG035-260312-0216','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-27','CLG037-260313-2541','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-27','CLG038-260313-4363','SEA',0,8910,-8910,null,'ขาดทุน'],
+['2026-03-27','CLG040-260314-3429','SEA',0,11452.50,-11452.50,null,'ขาดทุน'],
+['2026-03-27','CLG041-260314-4124','SEA',0,60515,-60515,null,'ขาดทุน'],
+['2026-03-27','CLG049-260317-5020','SEA',0,60689,-60689,null,'ขาดทุน'],
+['2026-03-27','CLG050-260318-9038','SEA',0,30401,-30401,null,'ขาดทุน'],
+['2026-03-27','CLG052-260319-2918','SEA',0,60568,-60568,null,'ขาดทุน'],
+['2026-03-27','CLG053','SEA',0,36000,-36000,null,'ขาดทุน'],
+['2026-03-27','CLG055-260320-6961','SEA',0,7000,-7000,null,'ขาดทุน'],
+['2026-03-27','CLG058','SEA',0,92000,-92000,null,'ขาดทุน'],
+['2026-03-27','CLG074','SEA',0,92000,-92000,null,'ขาดทุน'],
+['2026-03-27','CLG075','SEA',0,36000,-36000,null,'ขาดทุน'],
+['2026-03-27','CLG457','SEA',0,45000,-45000,null,'ขาดทุน'],
+['2026-03-27','EK0003-0311-6839','EK',628.22,0,628.22,100.0,'กำไร'],
+['2026-03-27','EK0006-0321-1508','EK',194216.32,0,194216.32,100.0,'กำไร'],
+['2026-03-27','EK004-260314-9065','EK',749.48,0,749.48,100.0,'กำไร'],
+['2026-03-27','EK005-260318-6238','EK',14784.86,0,14784.86,100.0,'กำไร'],
+['2026-03-27','LISSOM','Others',40,0,40,100.0,'กำไร'],
+['2026-03-27','SEA001-260304-8372','SEA',0,11455,-11455,null,'ขาดทุน'],
+['2026-03-27','SEA002-260309-2589','SEA',100,14431.93,-14331.93,null,'ขาดทุน'],
+['2026-03-27','SEA111-260204-1280','SEA',1473.50,0,1473.50,100.0,'กำไร'],
+['2026-03-28','BBR','Others',0,128739,-128739,null,'ขาดทุน'],
+['2026-03-28','CLG009-260303-6921','SEA',105000,0,105000,100.0,'กำไร'],
+['2026-03-28','CLG027-260310-9876','SEA',102000,0,102000,100.0,'กำไร'],
+['2026-03-28','CLG028-260311-2290','SEA',104000,0,104000,100.0,'กำไร'],
+['2026-03-28','CLG047-260316-0990','SEA',90000,0,90000,100.0,'กำไร'],
+['2026-03-28','CLG430-260206-8221','SEA',110000,0,110000,100.0,'กำไร'],
+['2026-03-28','CLG442-260209-7760','SEA',110000,0,110000,100.0,'กำไร'],
+['2026-03-28','CLG443-260209-2640','SEA',110000,0,110000,100.0,'กำไร'],
+['2026-03-28','EK0006-0321-1508','EK',4291.64,0,4291.64,100.0,'กำไร'],
+['2026-03-28','EK0007-0324-8652','EK',47331.23,0,47331.23,100.0,'กำไร'],
+['2026-03-28','EK0008-0326-0081','EK',443.89,0,443.89,100.0,'กำไร'],
+['2026-03-28','EK004-260314-9065','EK',1917.60,0,1917.60,100.0,'กำไร'],
+['2026-03-28','PAT444','Others',5883,0,5883,100.0,'กำไร'],
+['2026-03-28','PLEARN - P868','Others',40,0,40,100.0,'กำไร'],
+['2026-03-28','TAG','Others',82,0,82,100.0,'กำไร'],
+['2026-03-29','CLG004-260227-5647','SEA',100000,0,100000,100.0,'กำไร'],
+['2026-03-29','EK0006-0321-1508','EK',1890.08,0,1890.08,100.0,'กำไร'],
+['2026-03-29','EK0007-0324-8652','EK',1701.06,0,1701.06,100.0,'กำไร'],
+['2026-03-30','CLG004-260227-5647','SEA',50000,0,50000,100.0,'กำไร'],
+['2026-03-30','CLG005-260227-2800','SEA',140000,0,140000,100.0,'กำไร'],
+['2026-03-30','EK0006-0321-1508','EK',5452.86,0,5452.86,100.0,'กำไร'],
+['2026-03-30','EK0007-0324-8652','EK',99,0,99,100.0,'กำไร'],
+['2026-03-30','EK0008-0326-0081','EK',13684.10,0,13684.10,100.0,'กำไร'],
+['2026-03-30','EK005-260318-6238','EK',2146.57,0,2146.57,100.0,'กำไร'],
+['2026-03-30','TE','Others',21374,0,21374,100.0,'กำไร']
+];
+
+const DAILY_RAW = {
+  '2026-03-23':{inc:848836,exp:655878},
+  '2026-03-24':{inc:1565723,exp:189709},
+  '2026-03-25':{inc:1621241,exp:185180},
+  '2026-03-26':{inc:195753,exp:437053},
+  '2026-03-27':{inc:926992,exp:744062},
+  '2026-03-28':{inc:790989,exp:128739},
+  '2026-03-29':{inc:103591,exp:0},
+  '2026-03-30':{inc:232757,exp:0}
+};
+
+const DATA_MIN='2026-03-23', DATA_MAX='2026-03-30';
+let data=[...RAW], page=1, perPage=20, sCol=-1, sAsc=true;
+let cfChart=null, activeType='all', activePeriod=['2026-03-30','2026-03-30','วันนี้'];
+
+function clamp(d){return d<DATA_MIN?DATA_MIN:d>DATA_MAX?DATA_MAX:d;}
+function toISO(d){return d.toISOString().slice(0,10);}
+
+// ── TYPE FILTER ──
+function setType(type, btn) {
+  document.querySelectorAll('.type-btn').forEach(b=>{
+    b.className='type-btn';
+  });
+  btn.classList.add('active-'+type);
+  activeType=type;
+  const [f,t,lbl]=activePeriod;
+  applyFilter(f,t,lbl);
+}
+
+// ── PERIOD ──
+function getPeriodRange(type){
+  const today=new Date('2026-03-30');
+  const todayStr='2026-03-30';
+  if(type==='today') return[todayStr,todayStr,'30 มีนาคม 2569'];
+  if(type==='week'){
+    const dow=today.getDay();
+    const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
+    const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+    const f=clamp(toISO(mon)),t=clamp(toISO(sun));
+    return[f,t,`อาทิตย์นี้ (${thDate(f)} – ${thDate(t)})`];
+  }
+  if(type==='month') return[clamp('2026-03-01'),clamp('2026-03-31'),'มีนาคม 2569'];
+  if(type==='lastmonth') return[clamp('2026-02-01'),clamp('2026-02-28'),'กุมภาพันธ์ 2569'];
+  if(type==='year')  return[clamp('2026-01-01'),clamp('2026-12-31'),'ปี 2569'];
+  return[DATA_MIN,DATA_MAX,'23 – 30 มีนาคม 2569'];
+}
+
+function setPeriod(type,btn){
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const dr=document.getElementById('drange');
+  if(type==='custom'){dr.style.display='flex';return;}
+  dr.style.display='none';
+  activePeriod=getPeriodRange(type);
+  applyFilter(...activePeriod);
+}
+
+function applyCustom(){
+  const f=document.getElementById('dfrom').value;
+  const t=document.getElementById('dto').value;
+  if(!f||!t||f>t){alert('กรุณาเลือกช่วงวันที่ให้ถูกต้อง');return;}
+  document.getElementById('drange').style.display='none';
+  const opts={day:'numeric',month:'long',year:'numeric'};
+  const lbl=new Date(f).toLocaleDateString('th-TH',opts)+' – '+new Date(t).toLocaleDateString('th-TH',opts);
+  activePeriod=[f,t,lbl];
+  applyFilter(f,t,lbl);
+}
+
+// ── MAIN APPLY ──
+function applyFilter(from,to,label){
+  // filter by date + type
+  data = RAW.filter(r=>{
+    const inDate = r[0]>=from && r[0]<=to;
+    const inType = activeType==='all' || r[2]===activeType;
+    return inDate && inType;
+  });
+
+  // KPI
+  const totalInc = data.reduce((s,r)=>s+r[3],0);
+  const totalExp = data.reduce((s,r)=>s+r[4],0);
+  const totalPrf = totalInc-totalExp;
+  const lossRows = data.filter(r=>r[5]<0);
+  const profRows = data.filter(r=>r[5]>=0);
+  const avgMgn   = profRows.length ? profRows.reduce((s,r)=>s+(r[6]||0),0)/profRows.length : 0;
+
+  document.getElementById('kInc').textContent = '฿'+fmt(totalInc);
+  document.getElementById('kExp').textContent = '฿'+fmt(totalExp);
+  document.getElementById('kPrf').textContent = '฿'+fmt(totalPrf);
+  document.getElementById('kPrf').className   = 'kpi-value '+(totalPrf>=0?'td-pos':'td-neg');
+  document.getElementById('kMgn').textContent = avgMgn.toFixed(1)+'%';
+  document.getElementById('kCnt').textContent = data.length;
+  document.getElementById('kLoss').textContent= lossRows.length;
+  document.getElementById('kLossSub').textContent=lossRows.length>0?'⚠ ต้องตรวจสอบด่วน':'✓ ไม่มีขาดทุน';
+  document.getElementById('plabel').innerHTML = label+' &nbsp;·&nbsp; อัปเดตล่าสุด: 30 มี.ค. 2569';
+
+  // Type breakdown (always use full date filter, ignore type filter for breakdown)
+  const allInRange = RAW.filter(r=>r[0]>=from&&r[0]<=to);
+  const types = ['EK','SEA','Others'];
+  const totalPrfAll = allInRange.reduce((s,r)=>s+r[5],0);
+  document.getElementById('typeKpiRow').innerHTML = types.map(t=>{
+    const rows = allInRange.filter(r=>r[2]===t);
+    const inc  = rows.reduce((s,r)=>s+r[3],0);
+    const exp  = rows.reduce((s,r)=>s+r[4],0);
+    const prf  = inc-exp;
+    const pct  = totalInc>0 ? (inc/allInRange.reduce((s,r)=>s+r[3],0)*100)||0 : 0;
+    const isPos= prf>=0;
+    const colors={'EK':'#3B82F6','SEA':'#1D9E75','Others':'#8B5CF6'};
+    const labels={'EK':'✈ EK (อากาศ)','SEA':'🚢 SEA (เรือ)','Others':'📦 Others'};
+    return`<div class="type-kpi">
+      <div class="type-kpi-header">
+        <span class="type-kpi-name ${t}">${labels[t]}</span>
+        <span class="type-kpi-badge ${isPos?'profit':'loss'}">${isPos?'กำไร':'ขาดทุน'}</span>
+      </div>
+      <div class="type-kpi-nums">
+        <div class="type-num"><div class="type-num-label">รายรับ</div><div class="type-num-val">฿${fmt(inc)}</div></div>
+        <div class="type-num"><div class="type-num-label">รายจ่าย</div><div class="type-num-val">฿${fmt(exp)}</div></div>
+        <div class="type-num"><div class="type-num-label">กำไร</div><div class="type-num-val ${isPos?'pos':'neg'}">${isPos?'':'−'}฿${fmt(Math.abs(prf))}</div></div>
+      </div>
+      <div class="type-bar"><div class="type-bar-fill ${t}" style="width:${Math.min(100,Math.abs(pct)).toFixed(0)}%"></div></div>
+    </div>`;
+  }).join('');
+
+  // Alert
+  const topProfit=[...data].sort((a,b)=>b[5]-a[5])[0];
+  const topLoss=[...data].sort((a,b)=>a[5]-b[5])[0];
+  let alertHtml='';
+  if(lossRows.length>0&&topLoss) alertHtml+=`<strong>สั่งการด่วน:</strong> พบ Shipment ขาดทุน ${lossRows.length} รายการ — ${topLoss[1]} (${topLoss[2]}) ขาดทุน ฿${fmt(Math.abs(topLoss[5]))} มากที่สุด `;
+  if(topProfit&&topProfit[5]>0) alertHtml+=`&nbsp;·&nbsp; กำไรสูงสุด: <strong>${topProfit[1]} (${topProfit[2]}) ฿${fmt(topProfit[5])}</strong>`;
+  const alertBox=document.getElementById('alertBox');
+  alertBox.style.display=alertHtml?'flex':'none';
+  document.getElementById('alertText').innerHTML=alertHtml;
+
+  // Top bars
+  const sorted=[...data].sort((a,b)=>b[5]-a[5]);
+  const top5p=sorted.filter(r=>r[5]>0).slice(0,5);
+  const top5l=[...data].sort((a,b)=>a[5]-b[5]).filter(r=>r[5]<0).slice(0,5);
+  const maxP=top5p.length?top5p[0][5]:1, maxL=top5l.length?Math.abs(top5l[0][5]):1;
+  document.getElementById('topProfit').innerHTML=top5p.length
+    ?top5p.map(r=>`<div class="hbar"><div class="hbar-label">${r[1]}</div><div class="hbar-track"><div class="hbar-fill g" style="width:${(r[5]/maxP*100).toFixed(0)}%"></div></div><div class="hbar-val g">฿${fmt(r[5])}</div></div>`).join('')
+    :'<p style="font-size:12px;color:#aaa">ไม่มีข้อมูล</p>';
+  document.getElementById('topLoss').innerHTML=top5l.length
+    ?top5l.map(r=>`<div class="hbar"><div class="hbar-label">${r[1]}</div><div class="hbar-track"><div class="hbar-fill r" style="width:${(Math.abs(r[5])/maxL*100).toFixed(0)}%"></div></div><div class="hbar-val r">-฿${fmt(Math.abs(r[5]))}</div></div>`).join('')
+    :'<p style="font-size:12px;color:#aaa">ไม่มีขาดทุน 🎉</p>';
+
+  // Chart — use full (no type filter) daily data
+  const days=Object.keys(DAILY_RAW).filter(d=>d>=from&&d<=to).sort();
+  const inc2=days.map(d=>DAILY_RAW[d]?DAILY_RAW[d].inc:0);
+  const exp2=days.map(d=>DAILY_RAW[d]?DAILY_RAW[d].exp:0);
+  const prf2=days.map((_,i)=>inc2[i]-exp2[i]);
+  if(cfChart) cfChart.destroy();
+  cfChart=new Chart(document.getElementById('cfChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:days.map(thDate),datasets:[
+      {label:'รายรับ',data:inc2,backgroundColor:'#1D9E75',borderRadius:5,barPercentage:0.45,order:2},
+      {label:'รายจ่าย',data:exp2,backgroundColor:'#E24B4A',borderRadius:5,barPercentage:0.45,order:2},
+      {label:'กำไร',data:prf2,type:'line',borderColor:'#3B82F6',backgroundColor:'rgba(59,130,246,0.07)',
+       borderWidth:2,pointRadius:5,pointBackgroundColor:'#3B82F6',fill:true,tension:0.3,order:1,yAxisID:'y2'}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ฿'+c.parsed.y.toLocaleString('th-TH')}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11},color:'#aaa',autoSkip:false}},
+        y:{grid:{color:'#f5f5f5'},ticks:{font:{size:10},color:'#aaa',callback:v=>v>=1000000?'฿'+(v/1000000).toFixed(1)+'M':'฿'+(v/1000).toFixed(0)+'K'}},
+        y2:{position:'right',grid:{display:false},ticks:{font:{size:10},color:'#3B82F6',callback:v=>v>=1000000?'฿'+(v/1000000).toFixed(1)+'M':'฿'+(v/1000).toFixed(0)+'K'}}
+      }
+    }
+  });
+
+  // Table
+  page=1;sCol=-1;sAsc=true;
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sa','sd'));
+  renderT();renderPgn();
+}
+
+// ── TABLE ──
+function sortT(col){
+  const ths=document.querySelectorAll('thead th');
+  ths.forEach(th=>th.classList.remove('sa','sd'));
+  sAsc=(sCol===col)?!sAsc:(col<=1);
+  sCol=col;
+  ths[col].classList.add(sAsc?'sa':'sd');
+  data.sort((a,b)=>{
+    let va=a[col],vb=b[col];
+    if(col<=2){va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();}
+    if(col===6){va=va===null?-9999:va;vb=vb===null?-9999:vb;}
+    return(va<vb?-1:va>vb?1:0)*(sAsc?1:-1);
+  });
+  page=1;renderT();renderPgn();
+}
+function changePerPage(v){perPage=parseInt(v);page=1;renderT();renderPgn();}
+function renderT(){
+  const s=(page-1)*perPage,e=s+perPage,sl=data.slice(s,e);
+  const typeColor={'EK':'tag-EK','SEA':'tag-SEA','Others':'tag-Others'};
+  document.getElementById('tbody').innerHTML=sl.map(r=>{
+    const loss=r[7]==='ขาดทุน';
+    return`<tr>
+      <td>${thDate(r[0])}</td>
+      <td>${r[1]}</td>
+      <td><span class="type-tag ${typeColor[r[2]]||''}">${r[2]}</span></td>
+      <td class="num">฿${fmt(r[3])}</td>
+      <td class="num">฿${fmt(r[4])}</td>
+      <td class="num pf ${loss?'td-neg':'td-pos'}">${loss?'-฿'+fmt(Math.abs(r[5])):'฿'+fmt(r[5])}</td>
+      <td class="num">${r[6]===null?'—':r[6].toFixed(1)+'%'}</td>
+      <td><span class="badge ${loss?'bl':'bp'}">${r[7]}</span></td>
+    </tr>`;
+  }).join('');
+  const tot=data.length;
+  document.getElementById('tblinfo').textContent=`แสดง ${s+1}–${Math.min(e,tot)} จาก ${tot} รายการ`;
+}
+function renderPgn(){
+  const tot=data.length,pages=Math.ceil(tot/perPage);
+  const pg=document.getElementById('pgn');
+  if(pages<=1){pg.innerHTML='';return;}
+  let h=`<button class="pb" onclick="go(${page-1})" ${page===1?'disabled':''}>‹ ก่อนหน้า</button>`;
+  const range=[];
+  for(let i=1;i<=pages;i++){if(i===1||i===pages||(i>=page-2&&i<=page+2))range.push(i);}
+  let prev=0;
+  for(const p of range){
+    if(prev&&p-prev>1)h+=`<span class="pe">…</span>`;
+    h+=`<button class="pb ${p===page?'active':''}" onclick="go(${p})">${p}</button>`;
+    prev=p;
+  }
+  h+=`<button class="pb" onclick="go(${page+1})" ${page===pages?'disabled':''}>ถัดไป ›</button>`;
+  pg.innerHTML=h;
+}
+function go(p){
+  const pages=Math.ceil(data.length/perPage);
+  if(p<1||p>pages)return;
+  page=p;renderT();renderPgn();
+  document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// INIT
+activePeriod=getPeriodRange('today');
+applyFilter(...activePeriod);
+</script>
+</body>
+</html>
