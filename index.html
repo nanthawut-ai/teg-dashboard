@@ -15,27 +15,45 @@ body{font-family:'Sarabun','Segoe UI',sans-serif;background:#F0EEE9;color:#1a1a1
 .topbar-row1{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .topbar-left h1{font-size:18px;font-weight:700;color:#111;letter-spacing:-0.3px}
 .topbar-left p{font-size:12px;color:#999;margin-top:2px}
-.topbar-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f3f3f3}
-.row2-label{font-size:11px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-.pill-group{display:flex;align-items:center;background:#f4f3f0;border-radius:10px;padding:3px;gap:2px}
-.pill{font-size:12px;padding:5px 14px;border:none;border-radius:8px;background:transparent;color:#666;cursor:pointer;transition:all .15s;white-space:nowrap}
-.pill:hover{background:#e8e7e4;color:#333}
+
+/* FILTER BOX */
+.filter-box{display:flex;align-items:flex-start;gap:0;flex-wrap:wrap;background:#f8f7f4;border-radius:12px;padding:10px 14px;gap:8px}
+.filter-group{display:flex;flex-direction:column;gap:6px}
+.filter-group-label{font-size:10px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.05em}
+.filter-divider{width:1px;background:#e8e8e8;margin:0 4px;align-self:stretch}
+
+/* PERIOD */
+.pill-group{display:flex;align-items:center;background:#eeecea;border-radius:10px;padding:3px;gap:2px}
+.pill{font-size:12px;padding:5px 12px;border:none;border-radius:8px;background:transparent;color:#666;cursor:pointer;transition:all .15s;white-space:nowrap}
+.pill:hover{background:#e0dedb;color:#333}
 .pill.active{background:#111;color:#fff;font-weight:500}
-.date-range{display:none;align-items:center;gap:6px;margin-left:4px}
+.date-range{display:none;align-items:center;gap:6px}
 .date-range input[type=date]{font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;cursor:pointer}
 .sep{font-size:12px;color:#bbb}
 .btn-apply{font-size:12px;padding:5px 14px;border:none;border-radius:8px;background:#111;color:#fff;cursor:pointer;font-weight:600}
 
-/* TYPE FILTER */
-.type-filter{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-.type-label{font-size:11px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.type-btn{font-size:12px;padding:5px 14px;border:1.5px solid #e0e0e0;border-radius:20px;background:#fff;color:#666;cursor:pointer;transition:all .15s;font-weight:500}
-.type-btn:hover{border-color:#aaa;color:#333}
-.type-btn.active-all{background:#111;color:#fff;border-color:#111}
-.type-btn.active-EK{background:#F59E0B;color:#fff;border-color:#F59E0B}
-.type-btn.active-AW{background:#3B82F6;color:#fff;border-color:#3B82F6}
-.type-btn.active-SEA{background:#0F6E56;color:#fff;border-color:#0F6E56}
-.type-btn.active-Others{background:#8B5CF6;color:#fff;border-color:#8B5CF6}
+/* DROPDOWN */
+.dd-wrap{position:relative}
+.dd-btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;cursor:pointer;white-space:nowrap;min-width:120px;justify-content:space-between;transition:all .15s}
+.dd-btn:hover{border-color:#aaa}
+.dd-arrow{font-size:10px;color:#aaa;transition:transform .15s}
+.dd-wrap.open .dd-arrow{transform:rotate(180deg)}
+.dd-menu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:999;min-width:180px;padding:6px 0}
+.dd-menu-wide{min-width:240px}
+.dd-wrap.open .dd-menu{display:block}
+.dd-actions{display:flex;gap:12px;padding:6px 12px 8px;border-bottom:1px solid #f0f0f0}
+.dd-actions span{font-size:11px;color:#3B82F6;cursor:pointer;font-weight:600}
+.dd-actions span:hover{color:#1D4ED8}
+.dd-item{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:12px;color:#333;cursor:pointer;transition:background .1s}
+.dd-item:hover{background:#f8f8f8}
+.dd-item input[type=checkbox]{cursor:pointer;accent-color:#111;width:14px;height:14px}
+.dd-search-wrap{padding:6px 10px;border-bottom:1px solid #f0f0f0}
+.dd-search{width:100%;font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:7px;outline:none}
+.dd-search:focus{border-color:#aaa}
+
+/* LOADING */
+#loadingMsg{text-align:center;padding:2rem;font-size:14px;color:#999;display:block}
+
 
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1rem}
@@ -133,45 +151,103 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
 <body>
 <div class="dash">
 
-<!-- TOPBAR -->
+<!-- TOPBAR + FILTER BOX -->
 <div class="topbar">
   <div class="topbar-row1">
     <div class="topbar-left">
       <h1>TEG Cargo — Dashboard</h1>
-      <p id="plabel">23 – 30 มีนาคม 2569 &nbsp;·&nbsp; อัปเดตล่าสุด: 30 มี.ค. 2569</p>
+      <p id="plabel">กำลังโหลด...</p>
     </div>
   </div>
-  <div class="topbar-row2">
-    <span class="row2-label">ช่วงเวลา</span>
-    <div class="pill-group">
-      <button class="pill active" onclick="setPeriod('today',this)">วันนี้</button>
-      <button class="pill" onclick="setPeriod('week',this)">อาทิตย์นี้</button>
-      <button class="pill" onclick="setPeriod('month',this)">เดือนนี้</button>
-      <button class="pill" onclick="setPeriod('lastmonth',this)">เดือนที่แล้ว</button>
-      <button class="pill" onclick="setPeriod('year',this)">ปีนี้</button>
-      <button class="pill" onclick="setPeriod('custom',this)">กำหนดเอง</button>
+  <div class="filter-box">
+
+    <!-- ช่วงเวลา -->
+    <div class="filter-group">
+      <div class="filter-group-label">ช่วงเวลา</div>
+      <div class="pill-group">
+        <button class="pill active" onclick="setPeriod('today',this)">วันนี้</button>
+        <button class="pill" onclick="setPeriod('week',this)">อาทิตย์นี้</button>
+        <button class="pill" onclick="setPeriod('month',this)">เดือนนี้</button>
+        <button class="pill" onclick="setPeriod('lastmonth',this)">เดือนที่แล้ว</button>
+        <button class="pill" onclick="setPeriod('year',this)">ปีนี้</button>
+        <button class="pill" onclick="setPeriod('custom',this)">กำหนดเอง</button>
+      </div>
+      <div class="date-range" id="drange">
+        <input type="date" id="dfrom" value="2026-03-23">
+        <span class="sep">–</span>
+        <input type="date" id="dto" value="2026-03-30">
+        <button class="btn-apply" onclick="applyCustom()">ดู</button>
+      </div>
     </div>
-    <div class="date-range" id="drange">
-      <input type="date" id="dfrom" value="2026-03-23">
-      <span class="sep">–</span>
-      <input type="date" id="dto" value="2026-03-30">
-      <button class="btn-apply" onclick="applyCustom()">ดู</button>
+
+    <div class="filter-divider"></div>
+
+    <!-- ประเภท dropdown -->
+    <div class="filter-group">
+      <div class="filter-group-label">ประเภท</div>
+      <div class="dd-wrap" id="dd-type">
+        <button class="dd-btn" onclick="toggleDd('dd-type')">
+          <span id="dd-type-label">ทั้งหมด</span>
+          <span class="dd-arrow">▾</span>
+        </button>
+        <div class="dd-menu" id="dd-type-menu">
+          <div class="dd-actions">
+            <span onclick="selectAllDd('type')">เลือกทั้งหมด</span>
+            <span onclick="clearDd('type')">ล้างทั้งหมด</span>
+          </div>
+          <label class="dd-item"><input type="checkbox" value="EK" onchange="applyDdFilter()" checked> 🚛 EK (ทางรถ)</label>
+          <label class="dd-item"><input type="checkbox" value="AW" onchange="applyDdFilter()" checked> ✈ AW (ทางอากาศ)</label>
+          <label class="dd-item"><input type="checkbox" value="SEA" onchange="applyDdFilter()" checked> 🚢 SEA (ทางเรือ)</label>
+          <label class="dd-item"><input type="checkbox" value="Others" onchange="applyDdFilter()" checked> 📦 Others</label>
+        </div>
+      </div>
     </div>
+
+    <!-- รายการ dropdown -->
+    <div class="filter-group">
+      <div class="filter-group-label">รายการ</div>
+      <div class="dd-wrap" id="dd-item">
+        <button class="dd-btn" onclick="toggleDd('dd-item')">
+          <span id="dd-item-label">ทั้งหมด</span>
+          <span class="dd-arrow">▾</span>
+        </button>
+        <div class="dd-menu" id="dd-item-menu">
+          <div class="dd-actions">
+            <span onclick="selectAllDd('item')">เลือกทั้งหมด</span>
+            <span onclick="clearDd('item')">ล้างทั้งหมด</span>
+          </div>
+          <div id="dd-item-options"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Co., Ltd. dropdown -->
+    <div class="filter-group">
+      <div class="filter-group-label">Co., Ltd.</div>
+      <div class="dd-wrap" id="dd-co">
+        <button class="dd-btn" onclick="toggleDd('dd-co')">
+          <span id="dd-co-label">ทั้งหมด</span>
+          <span class="dd-arrow">▾</span>
+        </button>
+        <div class="dd-menu dd-menu-wide" id="dd-co-menu">
+          <div class="dd-actions">
+            <span onclick="selectAllDd('co')">เลือกทั้งหมด</span>
+            <span onclick="clearDd('co')">ล้างทั้งหมด</span>
+          </div>
+          <div class="dd-search-wrap">
+            <input type="text" placeholder="ค้นหา..." oninput="filterDdSearch('co',this.value)" class="dd-search">
+          </div>
+          <div id="dd-co-options"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- TYPE FILTER -->
+<!-- LOADING -->
 <div id="loadingMsg" style="text-align:center;padding:2rem;font-size:14px;color:#999;display:block">
   ⏳ กำลังโหลดข้อมูลจาก Google Sheets...
-</div>
-
-<div class="type-filter">
-  <span class="type-label">ประเภท</span>
-  <button class="type-btn active-all" onclick="setType('all',this)">ทั้งหมด</button>
-  <button class="type-btn" onclick="setType('EK',this)">🚛 EK (ทางรถ)</button>
-  <button class="type-btn" onclick="setType('AW',this)">✈ AW (ทางอากาศ)</button>
-  <button class="type-btn" onclick="setType('SEA',this)">🚢 SEA (ทางเรือ)</button>
-  <button class="type-btn" onclick="setType('Others',this)">📦 Others</button>
 </div>
 
 <!-- KPI -->
@@ -237,7 +313,9 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
       <thead><tr>
         <th class="sortable" onclick="sortT(0)">วันที่<span class="si"></span></th>
         <th class="sortable" onclick="sortT(1)">Shipment ID<span class="si"></span></th>
-        <th>ประเภท</th>
+        <th class="sortable" onclick="sortT(2)">ประเภท<span class="si"></span></th>
+        <th class="sortable" onclick="sortT(8)">รายการ<span class="si"></span></th>
+        <th class="sortable" onclick="sortT(9)">Co., Ltd.<span class="si"></span></th>
         <th class="sortable" style="text-align:right" onclick="sortT(3)">รายรับ (฿)<span class="si"></span></th>
         <th class="sortable" style="text-align:right" onclick="sortT(4)">รายจ่าย (฿)<span class="si"></span></th>
         <th class="sortable" style="text-align:right" onclick="sortT(5)">กำไร (฿)<span class="si"></span></th>
@@ -264,7 +342,13 @@ const SHEET_NAME = 'TEG Cargo';
 let RAW = [];
 let DAILY_RAW = {};
 let data = [], page=1, perPage=20, sCol=-1, sAsc=true;
-let cfChart=null, activeType='all', activePeriod=['','',''];
+let cfChart=null, activePeriod=['','',''];
+
+// filter state
+let selTypes = new Set(['EK','AW','SEA','Others']);
+let selItems = new Set(); // empty = all
+let selCos   = new Set(); // empty = all
+let allItems = [], allCos = [];
 
 // ── Show loading state ──
 function setLoading(on) {
@@ -276,7 +360,7 @@ function setLoading(on) {
 async function fetchSheetData() {
   setLoading(true);
   try {
-    const range = encodeURIComponent(`${SHEET_NAME}!A:N`);
+    const range = encodeURIComponent(`${SHEET_NAME}!A:O`);
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('API Error: ' + res.status);
@@ -288,21 +372,27 @@ async function fetchSheetData() {
     document.getElementById('loadingMsg').innerHTML =
       '⚠️ ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อ หรือสิทธิ์การเข้าถึง Google Sheets';
     document.getElementById('loadingMsg').style.color = '#C0392B';
+    setLoading(false);
   }
-  setLoading(false);
 }
 
 // ── Process raw sheet rows → RAW array ──
+// RAW: [date, shipID, type, income, expense, profit, margin, status, รายการ, coLtd, ลูกค้า]
 function processData(rows) {
   if(rows.length < 2) return;
-  // header row index 0, skip it
-  // Columns: Date(0), ShipmentID(1), รายการ(2), ลูกค้า(3), Income(4), Expense(5), Owner(6), ..., ประเภท(13)
+
+  // detect header positions
+  const hdr = rows[0].map(h=>(h||'').toString().toLowerCase().trim());
+  // find Co.,Ltd column - could be col 7 (old) or new position
+  // Try to detect by header name
+  let coIdx = hdr.findIndex(h=>h.includes('co') || h.includes('ltd') || h==='co., ltd.');
+  if(coIdx === -1) coIdx = 7; // fallback to col 7
+
   RAW = [];
   DAILY_RAW = {};
 
   let lastDate = '';
   rows.slice(1).forEach(r => {
-    // forward fill date
     const rawDate = r[0] ? r[0].toString().trim() : '';
     if(rawDate) lastDate = parseDate(rawDate);
     const dateStr = lastDate;
@@ -313,24 +403,36 @@ function processData(rows) {
 
     const income  = parseNum(r[4]);
     const expense = parseNum(r[5]);
-    const type    = (r[13]||'Others').toString().trim() || 'Others';
+    const typeRaw = (r[13]||r[14]||'Others').toString().trim();
+    const type    = typeRaw || 'Others';
+    const itemRaw = (r[2]||'').toString().trim();
+    const coRaw   = (r[coIdx]||'').toString().trim();
+    const custRaw = (r[3]||'').toString().trim();
     const profit  = income - expense;
     const margin  = income > 0 ? Math.round(profit/income*1000)/10 : null;
     const status  = profit >= 0 ? 'กำไร' : 'ขาดทุน';
 
-    RAW.push([dateStr, shipID, type, income, expense, profit, margin, status]);
+    RAW.push([dateStr, shipID, type, income, expense, profit, margin, status, itemRaw, coRaw, custRaw]);
 
-    // accumulate daily
     if(!DAILY_RAW[dateStr]) DAILY_RAW[dateStr] = {inc:0, exp:0};
     DAILY_RAW[dateStr].inc += income;
     DAILY_RAW[dateStr].exp += expense;
   });
+
+  // build unique lists for dropdowns
+  allItems = [...new Set(RAW.map(r=>r[8]).filter(Boolean))].sort();
+  allCos   = [...new Set(RAW.map(r=>r[9]).filter(Boolean))].sort();
+  selItems = new Set(allItems);
+  selCos   = new Set(allCos);
+  buildDropdown('item', allItems, selItems);
+  buildDropdown('co',   allCos,   selCos);
 
   // Set period bounds from actual data
   const dates = Object.keys(DAILY_RAW).sort();
   if(dates.length === 0) return;
   DATA_MIN = dates[0];
   DATA_MAX = dates[dates.length-1];
+
 
   // Update "today" to last date in data
   TODAY = DATA_MAX;
@@ -394,13 +496,68 @@ let DATA_MIN='', DATA_MAX='', TODAY='';
 function clamp(d){return d<DATA_MIN?DATA_MIN:d>DATA_MAX?DATA_MAX:d;}
 function toISO(d){return d.toISOString().slice(0,10);}
 
-// ── TYPE FILTER ──
-function setType(type, btn) {
-  document.querySelectorAll('.type-btn').forEach(b=>b.className='type-btn');
-  btn.classList.add('active-'+type);
-  activeType=type;
+// ── DROPDOWN FUNCTIONS ──
+function buildDropdown(key, items, selSet) {
+  const container = document.getElementById(`dd-${key}-options`);
+  if(!container) return;
+  container.innerHTML = items.map(v =>
+    `<label class="dd-item"><input type="checkbox" value="${v.replace(/"/g,'&quot;')}" onchange="applyDdFilter()" ${selSet.has(v)?'checked':''}> ${v||'(ว่าง)'}</label>`
+  ).join('');
+  updateDdLabel(key, selSet, items);
+}
+
+function toggleDd(id) {
+  const wrap = document.getElementById(id);
+  const isOpen = wrap.classList.contains('open');
+  // close all
+  document.querySelectorAll('.dd-wrap').forEach(w=>w.classList.remove('open'));
+  if(!isOpen) wrap.classList.add('open');
+}
+
+// close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if(!e.target.closest('.dd-wrap')) {
+    document.querySelectorAll('.dd-wrap').forEach(w=>w.classList.remove('open'));
+  }
+});
+
+function selectAllDd(key) {
+  const container = document.getElementById(`dd-${key}-options`);
+  container.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true);
+  applyDdFilter();
+}
+function clearDd(key) {
+  const container = document.getElementById(`dd-${key}-options`);
+  container.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+  applyDdFilter();
+}
+function filterDdSearch(key, q) {
+  const container = document.getElementById(`dd-${key}-options`);
+  container.querySelectorAll('.dd-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function applyDdFilter() {
+  // read type checkboxes
+  selTypes = new Set([...document.querySelectorAll('#dd-type-menu input:checked')].map(cb=>cb.value));
+  selItems = new Set([...document.querySelectorAll('#dd-item-menu input:checked')].map(cb=>cb.value));
+  selCos   = new Set([...document.querySelectorAll('#dd-co-menu input:checked')].map(cb=>cb.value));
+  updateDdLabel('type', selTypes, ['EK','AW','SEA','Others']);
+  updateDdLabel('item', selItems, allItems);
+  updateDdLabel('co',   selCos,   allCos);
   applyFilter(...activePeriod);
 }
+
+function updateDdLabel(key, selSet, allList) {
+  const lbl = document.getElementById(`dd-${key}-label`);
+  if(!lbl) return;
+  if(selSet.size === 0) lbl.textContent = 'ไม่ได้เลือก';
+  else if(selSet.size === allList.length) lbl.textContent = 'ทั้งหมด';
+  else if(selSet.size === 1) lbl.textContent = [...selSet][0];
+  else lbl.textContent = `${selSet.size} รายการ`;
+}
+
 
 // ── PERIOD ──
 function getPeriodRange(type){
@@ -457,8 +614,10 @@ function applyFilter(from,to,label){
   if(!from||!to) return;
   data = RAW.filter(r=>{
     const inDate = r[0]>=from && r[0]<=to;
-    const inType = activeType==='all' || r[2]===activeType;
-    return inDate && inType;
+    const inType = selTypes.size===0 || selTypes.has(r[2]);
+    const inItem = selItems.size===0 || selItems.size===allItems.length || selItems.has(r[8]);
+    const inCo   = selCos.size===0   || selCos.size===allCos.length    || selCos.has(r[9]);
+    return inDate && inType && inItem && inCo;
   });
 
   const totalInc = data.reduce((s,r)=>s+r[3],0);
@@ -566,10 +725,14 @@ function searchTable(q) {
   const kw = q.trim().toLowerCase();
   const [f,t] = activePeriod;
   data = RAW.filter(r => {
-    const inDate = r[0]>=f && r[0]<=t;
-    const inType = activeType==='all' || r[2]===activeType;
-    const inSearch = !kw || r[1].toLowerCase().includes(kw) || r[2].toLowerCase().includes(kw) || r[0].includes(kw);
-    return inDate && inType && inSearch;
+    const inDate   = r[0]>=f && r[0]<=t;
+    const inType   = selTypes.size===0 || selTypes.has(r[2]);
+    const inItem   = selItems.size===0 || selItems.size===allItems.length || selItems.has(r[8]);
+    const inCo     = selCos.size===0   || selCos.size===allCos.length    || selCos.has(r[9]);
+    const inSearch = !kw || r[1].toLowerCase().includes(kw) || r[2].toLowerCase().includes(kw)
+                         || r[8].toLowerCase().includes(kw) || r[9].toLowerCase().includes(kw)
+                         || r[10].toLowerCase().includes(kw);
+    return inDate && inType && inItem && inCo && inSearch;
   });
   page=1; renderT(); renderPgn();
 }
@@ -578,12 +741,12 @@ function searchTable(q) {
 function sortT(col){
   const ths=document.querySelectorAll('thead th');
   ths.forEach(th=>th.classList.remove('sa','sd'));
-  sAsc=(sCol===col)?!sAsc:(col<=1);
+  sAsc=(sCol===col)?!sAsc:(col<=2||col===8||col===9);
   sCol=col;
-  ths[col].classList.add(sAsc?'sa':'sd');
+  ths.forEach((th,i)=>{ if(parseInt(th.getAttribute('onclick')?.match(/\d+/)?.[0])===col) th.classList.add(sAsc?'sa':'sd'); });
   data.sort((a,b)=>{
-    let va=a[col],vb=b[col];
-    if(col<=2){va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();}
+    let va=a[col]??'', vb=b[col]??'';
+    if([0,1,2,8,9].includes(col)){va=va.toString().toLowerCase();vb=vb.toString().toLowerCase();}
     if(col===6){va=va===null?-9999:va;vb=vb===null?-9999:vb;}
     return(va<vb?-1:va>vb?1:0)*(sAsc?1:-1);
   });
@@ -599,6 +762,8 @@ function renderT(){
       <td>${thDate(r[0])}</td>
       <td>${r[1]}</td>
       <td><span class="type-tag ${typeColor[r[2]]||''}">${r[2]}</span></td>
+      <td>${r[8]||'—'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r[9]||''}">${r[9]||'—'}</td>
       <td class="num">฿${fmt(r[3])}</td>
       <td class="num">฿${fmt(r[4])}</td>
       <td class="num pf ${loss?'td-neg':'td-pos'}">${loss?'-฿'+fmt(Math.abs(r[5])):'฿'+fmt(r[5])}</td>
