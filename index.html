@@ -51,8 +51,13 @@ body{font-family:'Sarabun','Segoe UI',sans-serif;background:#F0EEE9;color:#1a1a1
 .dd-search{width:100%;font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:7px;outline:none}
 .dd-search:focus{border-color:#aaa}
 
-/* LOADING */
-#loadingMsg{text-align:center;padding:2rem;font-size:14px;color:#999;display:block}
+/* PROGRESS INDICATOR */
+.progress-wrap{position:absolute;top:1rem;right:1.5rem;display:none;align-items:center;gap:8px}
+.progress-wrap.show{display:flex}
+.progress-bar-bg{width:120px;height:6px;background:#f0eeea;border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:#1D9E75;border-radius:3px;transition:width .3s ease;width:0%}
+.progress-pct{font-size:11px;font-weight:600;color:#1D9E75;min-width:32px}
+.progress-label{font-size:11px;color:#aaa}
 
 
 /* KPI */
@@ -152,12 +157,21 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
 <div class="dash">
 
 <!-- TOPBAR + FILTER BOX -->
-<div class="topbar">
+<div class="topbar" style="position:relative">
   <div class="topbar-row1">
     <div class="topbar-left">
       <h1>TEG Cargo — Dashboard</h1>
       <p id="plabel">กำลังโหลด...</p>
     </div>
+  </div>
+
+  <!-- Progress indicator top right -->
+  <div class="progress-wrap" id="progressWrap">
+    <span class="progress-label">โหลดข้อมูล</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-pct" id="progressPct">0%</span>
   </div>
   <div class="filter-box">
 
@@ -243,11 +257,6 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
     </div>
 
   </div>
-</div>
-
-<!-- LOADING -->
-<div id="loadingMsg" style="text-align:center;padding:2rem;font-size:14px;color:#999;display:block">
-  ⏳ กำลังโหลดข้อมูลจาก Google Sheets...
 </div>
 
 <!-- KPI -->
@@ -350,29 +359,51 @@ let selItems = new Set(); // empty = all
 let selCos   = new Set(); // empty = all
 let allItems = [], allCos = [];
 
-// ── Show loading state ──
+// ── Progress bar ──
+function setProgress(pct, done=false) {
+  const wrap = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  const lbl  = document.getElementById('progressPct');
+  if(!wrap) return;
+  if(done) {
+    fill.style.width = '100%';
+    lbl.textContent = '100%';
+    setTimeout(()=>{ wrap.classList.remove('show'); }, 800);
+    return;
+  }
+  wrap.classList.add('show');
+  fill.style.width = pct + '%';
+  lbl.textContent  = pct + '%';
+}
+
 function setLoading(on) {
-  const el = document.getElementById('loadingMsg');
-  if(el) el.style.display = on ? 'block' : 'none';
+  // kept for compatibility — no-op now
 }
 
 // ── Fetch data from Google Sheets ──
 async function fetchSheetData() {
-  setLoading(true);
+  setProgress(10);
   try {
     const range = encodeURIComponent(`${SHEET_NAME}!A:O`);
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+    setProgress(30);
     const res = await fetch(url);
+    setProgress(60);
     if(!res.ok) throw new Error('API Error: ' + res.status);
     const json = await res.json();
+    setProgress(80);
     const rows = json.values || [];
     processData(rows);
+    setProgress(100, true);
   } catch(e) {
     console.error(e);
-    document.getElementById('loadingMsg').innerHTML =
-      '⚠️ ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อ หรือสิทธิ์การเข้าถึง Google Sheets';
-    document.getElementById('loadingMsg').style.color = '#C0392B';
-    setLoading(false);
+    const wrap = document.getElementById('progressWrap');
+    const fill = document.getElementById('progressFill');
+    const lbl  = document.getElementById('progressPct');
+    if(fill) fill.style.background = '#E24B4A';
+    if(lbl)  { lbl.textContent = 'Error'; lbl.style.color = '#E24B4A'; }
+    document.getElementById('plabel').innerHTML =
+      '⚠️ โหลดข้อมูลไม่สำเร็จ — ตรวจสอบสิทธิ์ Google Sheets';
   }
 }
 
