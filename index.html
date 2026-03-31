@@ -311,8 +311,8 @@ function processData(rows) {
     const shipID  = (r[1]||'').toString().trim();
     if(!shipID) return;
 
-    const income  = parseFloat((r[4]||'0').toString().replace(/,/g,'')) || 0;
-    const expense = parseFloat((r[5]||'0').toString().replace(/,/g,'')) || 0;
+    const income  = parseNum(r[4]);
+    const expense = parseNum(r[5]);
     const type    = (r[13]||'Others').toString().trim() || 'Others';
     const profit  = income - expense;
     const margin  = income > 0 ? Math.round(profit/income*1000)/10 : null;
@@ -345,29 +345,47 @@ function processData(rows) {
   applyFilter(...activePeriod);
 }
 
+// ── Parse number with ฿ symbol and commas ──
+function parseNum(val) {
+  if(!val) return 0;
+  const s = val.toString().replace(/฿/g,'').replace(/,/g,'').trim();
+  return parseFloat(s) || 0;
+}
+
 // ── Parse various date formats from Sheets ──
 function parseDate(raw) {
-  // Try YYYY-MM-DD
-  if(/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-    const d = new Date(raw);
-    if(d.getFullYear() === 1969) return raw.replace('1969','2026');
-    return raw;
+  if(!raw) return '';
+  const s = raw.toString().trim();
+
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return s.startsWith('1969') ? s.replace('1969','2026') : s;
   }
-  // Try DD/MM/YYYY or MM/DD/YYYY (serial number from Excel)
-  if(/^\d+$/.test(raw)) {
-    // Excel serial date
-    const d = new Date((parseInt(raw)-25569)*86400*1000);
-    return d.toISOString().slice(0,10);
+
+  // DD/MM/YYYY or D/M/YYYY
+  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(dmy) {
+    const [,d,m,y] = dmy;
+    const year = parseInt(y) < 2500 ? y : (parseInt(y)-543).toString();
+    return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
   }
-  // Try parsing as-is
-  try {
-    const d = new Date(raw);
-    if(!isNaN(d)) {
-      let iso = d.toISOString().slice(0,10);
-      if(iso.startsWith('1969')) iso = iso.replace('1969','2026');
-      return iso;
-    }
-  } catch(e){}
+
+  // DD/MM/YY (Thai short year) e.g. 25/3/69
+  const dmyShort = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if(dmyShort) {
+    const [,d,m,y] = dmyShort;
+    const year = (2500 + parseInt(y) - 543).toString();
+    return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+
+  // Excel serial number
+  if(/^\d+$/.test(s)) {
+    const d = new Date((parseInt(s)-25569)*86400*1000);
+    let iso = d.toISOString().slice(0,10);
+    if(iso.startsWith('1969')) iso = iso.replace('1969','2026');
+    return iso;
+  }
+
   return '';
 }
 
