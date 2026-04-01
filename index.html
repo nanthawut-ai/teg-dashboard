@@ -59,6 +59,7 @@ body{font-family:'Sarabun','Segoe UI',sans-serif;background:#F0EEE9;color:#1a1a1
 .progress-pct{font-size:11px;font-weight:600;color:#1D9E75;min-width:32px}
 .progress-label{font-size:11px;color:#aaa}
 
+
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1rem}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
@@ -144,6 +145,7 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
 .tag-AW{background:#EFF6FF;color:#2563EB}
 .tag-SEA{background:#ECFDF5;color:#065F46}
 .tag-Others{background:#F5F3FF;color:#6D28D9}
+/* 2-row header */
 .th-group{text-align:center;font-size:10px;font-weight:700;padding:5px 4px;border-bottom:none}
 .th-inc{background:#EEF9F4;color:#0F6E56;border-bottom:2px solid #1D9E75}
 .th-exp{background:#FEF2F2;color:#991B1B;border-bottom:2px solid #E24B4A}
@@ -152,10 +154,12 @@ thead tr:first-child th{border-bottom:none}
 thead tr:last-child th{border-top:1px solid #e8e8e8}
 td.inc-col{background:#fafffe}
 td.exp-col{background:#fffafa}
+/* toggle view button */
 .view-toggle{display:flex;background:#f4f3f0;border-radius:8px;padding:3px;gap:2px}
 .vt-btn{font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:transparent;color:#666;cursor:pointer;transition:all .15s;white-space:nowrap}
 .vt-btn:hover{background:#e8e7e4}
 .vt-btn.active{background:#111;color:#fff;font-weight:500}
+/* zero cell */
 td.zero{color:#ddd}
 .pagination{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:14px;flex-wrap:wrap}
 .pb{font-size:12px;padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#555;cursor:pointer;min-width:34px;text-align:center;transition:all .12s}
@@ -168,6 +172,7 @@ td.zero{color:#ddd}
 <body>
 <div class="dash">
 
+<!-- TOPBAR + FILTER BOX -->
 <div class="topbar" style="position:relative">
   <div class="topbar-row1">
     <div class="topbar-left">
@@ -176,6 +181,7 @@ td.zero{color:#ddd}
     </div>
   </div>
 
+  <!-- Progress indicator top right -->
   <div class="progress-wrap" id="progressWrap">
     <span class="progress-label">โหลดข้อมูล</span>
     <div class="progress-bar-bg">
@@ -183,8 +189,9 @@ td.zero{color:#ddd}
     </div>
     <span class="progress-pct" id="progressPct">0%</span>
   </div>
-
   <div class="filter-box">
+
+    <!-- ช่วงเวลา -->
     <div class="filter-group">
       <div class="filter-group-label">ช่วงเวลา</div>
       <div class="pill-group">
@@ -205,6 +212,7 @@ td.zero{color:#ddd}
 
     <div class="filter-divider"></div>
 
+    <!-- ประเภท dropdown -->
     <div class="filter-group">
       <div class="filter-group-label">ประเภท</div>
       <div class="dd-wrap" id="dd-type">
@@ -222,6 +230,7 @@ td.zero{color:#ddd}
       </div>
     </div>
 
+    <!-- รายการ dropdown -->
     <div class="filter-group">
       <div class="filter-group-label">รายการ</div>
       <div class="dd-wrap" id="dd-item">
@@ -239,6 +248,7 @@ td.zero{color:#ddd}
       </div>
     </div>
 
+    <!-- Co., Ltd. dropdown -->
     <div class="filter-group">
       <div class="filter-group-label">Co., Ltd.</div>
       <div class="dd-wrap" id="dd-co">
@@ -258,6 +268,7 @@ td.zero{color:#ddd}
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -271,18 +282,22 @@ td.zero{color:#ddd}
   <div class="kpi r"><div class="kpi-label">Shipment ขาดทุน</div><div class="kpi-value td-neg" id="kLoss">—</div><div class="kpi-sub warn" id="kLossSub"></div></div>
 </div>
 
+<!-- TYPE BREAKDOWN -->
 <div class="type-kpi-row" id="typeKpiRow"></div>
 
+<!-- ALERT -->
 <div class="alert" id="alertBox" style="display:none">
   <div style="font-size:14px;flex-shrink:0">⚠</div>
   <div class="alert-body" id="alertText"></div>
 </div>
 
+<!-- TOP/BOTTOM BARS -->
 <div class="two-col">
   <div class="card"><div class="sec-label">🏆 Top 5 กำไรสูงสุด</div><div id="topProfit"></div></div>
   <div class="card"><div class="sec-label">🔴 Top 5 ขาดทุนสูงสุด</div><div id="topLoss"></div></div>
 </div>
 
+<!-- CHART -->
 <div class="card card-mb">
   <div class="chart-header">
     <div class="sec-label" style="margin-bottom:0">📊 Cash Flow รายวัน</div>
@@ -295,6 +310,7 @@ td.zero{color:#ddd}
   <div style="position:relative;height:240px"><canvas id="cfChart"></canvas></div>
 </div>
 
+<!-- TABLE -->
 <div class="card">
   <div class="tbl-header">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -307,7 +323,7 @@ td.zero{color:#ddd}
     <div class="tbl-right">
       <div style="position:relative">
         <input type="text" id="searchBox" placeholder="🔍 ค้นหา Shipment ID..." oninput="searchTable(this.value)"
-          style="font-size:12px;padding:5px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;width:200px;outline:none">
+          style="font-size:12px;padding:5px 10px 5px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;width:200px;outline:none">
       </div>
       <div class="pp-wrap">แสดง
         <select id="ppsel" onchange="changePerPage(this.value)">
@@ -335,8 +351,10 @@ td.zero{color:#ddd}
 const fmt = n => n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const thDate = s => new Date(s).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
 
-// ── Apps Script Middleware (ไม่มี API Key ในโค้ด) ──
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_uKPQt05A-MAYJ5641y5ne9qJ2aIBY3g9d0KmaT4uWieffD0wmCY_rxFAVI4-4Gxx7A/exec';
+// ── Google Sheets Config ──
+const SHEET_ID  = '1F6Bgq-nk2r-wk3XZic86SXvlEO9xTtbUs0DbdYogpso';
+const API_KEY   = 'AIzaSyA30kMkayNWqFb6DYze1ahc6pOZaAGSEfc';
+const SHEET_NAME = 'TEG Cargo';
 
 // ── Income/Expense column mapping ──
 const INC_COLS = ['ค่านำเข้า','ค่าส่งแฟลซ','ฝากโอน','ค่าบริการใบขน'];
@@ -349,11 +367,13 @@ let DAILY_RAW = {};
 let data = [], page=1, perPage=20, sCol=-1, sAsc=true;
 let cfChart=null, activePeriod=['','',''];
 
+// filter state
 let selTypes = new Set(['EK','AW','SEA','Others']);
-let selItems = new Set();
-let selCos   = new Set();
+let selItems = new Set(); // empty = all
+let selCos   = new Set(); // empty = all
 let allItems = [], allCos = [];
 
+// ── Progress bar ──
 function setProgress(pct, done=false) {
   const wrap = document.getElementById('progressWrap');
   const fill = document.getElementById('progressFill');
@@ -370,39 +390,49 @@ function setProgress(pct, done=false) {
   lbl.textContent  = pct + '%';
 }
 
-// ── Fetch จาก Apps Script แทน Google Sheets API โดยตรง ──
+function setLoading(on) {
+  // kept for compatibility — no-op now
+}
+
+// ── Fetch data from Google Sheets ──
 async function fetchSheetData() {
   setProgress(10);
   try {
+    const range = encodeURIComponent(`${SHEET_NAME}!A:O`);
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
     setProgress(30);
-    const res = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
+    const res = await fetch(url);
     setProgress(60);
-    if(!res.ok) throw new Error('Apps Script Error: ' + res.status);
+    if(!res.ok) throw new Error('API Error: ' + res.status);
     const json = await res.json();
     setProgress(80);
-    if(json.error) throw new Error(json.error);
     const rows = json.values || [];
     processData(rows);
     setProgress(100, true);
   } catch(e) {
     console.error(e);
+    const wrap = document.getElementById('progressWrap');
     const fill = document.getElementById('progressFill');
     const lbl  = document.getElementById('progressPct');
     if(fill) fill.style.background = '#E24B4A';
     if(lbl)  { lbl.textContent = 'Error'; lbl.style.color = '#E24B4A'; }
     document.getElementById('plabel').innerHTML =
-      '⚠️ โหลดข้อมูลไม่สำเร็จ — ตรวจสอบ Apps Script';
+      '⚠️ โหลดข้อมูลไม่สำเร็จ — ตรวจสอบสิทธิ์ Google Sheets';
   }
 }
 
+// ── Process raw sheet rows → RAW array ──
+// RAW: [date, shipID, type, income, expense, profit, margin, status, รายการ, coLtd, ลูกค้า]
 function processData(rows) {
   if(rows.length < 2) return;
 
+  // detect header — Col 7 = Co.,Ltd
   const hdr = rows[0].map(h=>(h||'').toString().trim());
   let coIdx = hdr.findIndex(h => /^co[\.,]/i.test(h) || h.toLowerCase()==='co., ltd.' || h.toLowerCase()==='co,ltd');
   if(coIdx === -1) coIdx = 7;
 
-  const TXN = [];
+  // ── Step 1: read raw transactions ──
+  const TXN = []; // raw transactions for daily cash flow
   DAILY_RAW = {};
 
   let lastDate = '';
@@ -424,11 +454,14 @@ function processData(rows) {
 
     TXN.push({dateStr, shipID, type, income, expense, item, co, cust});
 
+    // accumulate daily totals
     if(!DAILY_RAW[dateStr]) DAILY_RAW[dateStr] = {inc:0, exp:0};
     DAILY_RAW[dateStr].inc += income;
     DAILY_RAW[dateStr].exp += expense;
   });
 
+  // ── Step 2: Group by ShipmentID → RAW ──
+  // RAW: [firstDate, shipID, type, totalIncome, totalExpense, profit, margin, status, items, cos, custs]
   const shipMap = new Map();
   TXN.forEach(t => {
     if(!shipMap.has(t.shipID)) {
@@ -447,8 +480,9 @@ function processData(rows) {
     if(t.co)   s.cos.add(t.co);
     if(t.cust) s.custs.add(t.cust);
 
+    // breakdown for detail view
     const isKnownInc = INC_COLS.includes(t.item);
-    const isKnownExp = EXP_COLS.includes(t.item.trim());
+    const isKnownExp = EXP_COLS.includes(t.item) || EXP_COLS.includes(t.item.trim());
     if(t.income > 0) {
       const key = isKnownInc ? t.item : '__incOther';
       if(!s.breakdown[key]) s.breakdown[key] = {inc:0, exp:0};
@@ -467,13 +501,22 @@ function processData(rows) {
     const margin = s.totalInc > 0 ? Math.round(profit/s.totalInc*1000)/10 : null;
     const status = profit >= 0 ? 'กำไร' : 'ขาดทุน';
     RAW.push([
-      s.firstDate, shipID, s.type,
-      s.totalInc, s.totalExp, profit, margin, status,
-      [...s.items].join(', '), [...s.cos].join(', '), [...s.custs].join(', '),
-      s.breakdown
+      s.firstDate,              // 0 date
+      shipID,                   // 1 shipID
+      s.type,                   // 2 type
+      s.totalInc,               // 3 income total
+      s.totalExp,               // 4 expense total
+      profit,                   // 5 profit
+      margin,                   // 6 margin
+      status,                   // 7 status
+      [...s.items].join(', '),  // 8 รายการ
+      [...s.cos].join(', '),    // 9 co.,ltd
+      [...s.custs].join(', '),  // 10 ลูกค้า
+      s.breakdown               // 11 breakdown map
     ]);
   });
 
+  // ── Step 3: build dropdown options ──
   const allTypes = ['EK','AW','SEA','Others'];
   const typeLabels = {'EK':'🚛 EK (ทางรถ)','AW':'✈ AW (ทางอากาศ)','SEA':'🚢 SEA (ทางเรือ)','Others':'📦 Others'};
   allItems = [...new Set(TXN.map(t=>t.item).filter(Boolean))].sort();
@@ -485,57 +528,74 @@ function processData(rows) {
   buildDropdown('item', allItems, selItems);
   buildDropdown('co',   allCos,   selCos);
 
+  // ── Step 4: date bounds ──
   const dates = Object.keys(DAILY_RAW).sort();
   if(dates.length === 0) return;
   DATA_MIN = dates[0];
   DATA_MAX = dates[dates.length-1];
+
   TODAY = DATA_MAX;
 
+  // Update last updated label
   document.getElementById('plabel').innerHTML =
     thDate(DATA_MIN)+' – '+thDate(DATA_MAX)+
     ' &nbsp;·&nbsp; อัปเดตล่าสุด: '+thDate(DATA_MAX);
 
+  // Apply default period
   activePeriod = getPeriodRange('today');
   applyFilter(...activePeriod);
 }
 
+// ── Parse number with ฿ symbol and commas ──
 function parseNum(val) {
   if(!val) return 0;
   const s = val.toString().replace(/฿/g,'').replace(/,/g,'').trim();
   return parseFloat(s) || 0;
 }
 
+// ── Parse various date formats from Sheets ──
 function parseDate(raw) {
   if(!raw) return '';
   const s = raw.toString().trim();
+
+  // YYYY-MM-DD
   if(/^\d{4}-\d{2}-\d{2}$/.test(s)) {
     return s.startsWith('1969') ? s.replace('1969','2026') : s;
   }
+
+  // DD/MM/YYYY or D/M/YYYY
   const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(dmy) {
     const [,d,m,y] = dmy;
     const year = parseInt(y) < 2500 ? y : (parseInt(y)-543).toString();
     return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
   }
+
+  // DD/MM/YY (Thai short year) e.g. 25/3/69
   const dmyShort = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if(dmyShort) {
     const [,d,m,y] = dmyShort;
     const year = (2500 + parseInt(y) - 543).toString();
     return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
   }
+
+  // Excel serial number
   if(/^\d+$/.test(s)) {
     const d = new Date((parseInt(s)-25569)*86400*1000);
     let iso = d.toISOString().slice(0,10);
     if(iso.startsWith('1969')) iso = iso.replace('1969','2026');
     return iso;
   }
+
   return '';
 }
 
 let DATA_MIN='', DATA_MAX='', TODAY='';
+
 function clamp(d){return d<DATA_MIN?DATA_MIN:d>DATA_MAX?DATA_MAX:d;}
 function toISO(d){return d.toISOString().slice(0,10);}
 
+// ── DROPDOWN FUNCTIONS ──
 function buildDropdown(key, items, selSet, labels={}) {
   const container = document.getElementById(`dd-${key}-options`);
   if(!container) return;
@@ -592,6 +652,8 @@ function updateDdLabel(key, selSet, allList) {
   else lbl.textContent = `${selSet.size} รายการ`;
 }
 
+
+// ── PERIOD ──
 function getPeriodRange(type){
   const todayDate = new Date(TODAY||DATA_MAX||'2026-03-30');
   const todayStr  = TODAY||DATA_MAX||'2026-03-30';
@@ -641,11 +703,13 @@ function applyCustom(){
   applyFilter(f,t,lbl);
 }
 
+// ── MAIN APPLY ──
 function applyFilter(from,to,label){
   if(!from||!to) return;
   data = RAW.filter(r=>{
     const inDate = r[0]>=from && r[0]<=to;
     const inType = selTypes.size===0 || selTypes.has(r[2]);
+    // for grouped rows, items/cos are comma-joined strings — check if any selected value is included
     const inItem = selItems.size===0 || selItems.size===allItems.length ||
                    [...selItems].some(v => r[8].includes(v));
     const inCo   = selCos.size===0   || selCos.size===allCos.length    ||
@@ -670,6 +734,7 @@ function applyFilter(from,to,label){
   document.getElementById('kLossSub').textContent=lossRows.length>0?'⚠ ต้องตรวจสอบด่วน':'✓ ไม่มีขาดทุน';
   document.getElementById('plabel').innerHTML = label+' &nbsp;·&nbsp; อัปเดตล่าสุด: '+thDate(DATA_MAX);
 
+  // Type breakdown
   const allInRange = RAW.filter(r=>r[0]>=from&&r[0]<=to);
   const types = ['EK','AW','SEA','Others'];
   const totalIncAll = allInRange.reduce((s,r)=>s+r[3],0);
@@ -697,6 +762,7 @@ function applyFilter(from,to,label){
     </div>`;
   }).join('');
 
+  // Alert
   const topProfit=[...data].sort((a,b)=>b[5]-a[5])[0];
   const topLoss=[...data].sort((a,b)=>a[5]-b[5])[0];
   let alertHtml='';
@@ -706,6 +772,7 @@ function applyFilter(from,to,label){
   alertBox.style.display=alertHtml?'flex':'none';
   document.getElementById('alertText').innerHTML=alertHtml;
 
+  // Top bars
   const sorted=[...data].sort((a,b)=>b[5]-a[5]);
   const top5p=sorted.filter(r=>r[5]>0).slice(0,5);
   const top5l=[...data].sort((a,b)=>a[5]-b[5]).filter(r=>r[5]<0).slice(0,5);
@@ -717,6 +784,7 @@ function applyFilter(from,to,label){
     ?top5l.map(r=>`<div class="hbar"><div class="hbar-label">${r[1]}</div><div class="hbar-track"><div class="hbar-fill r" style="width:${(Math.abs(r[5])/maxL*100).toFixed(0)}%"></div></div><div class="hbar-val r">-฿${fmt(Math.abs(r[5]))}</div></div>`).join('')
     :'<p style="font-size:12px;color:#aaa">ไม่มีขาดทุน 🎉</p>';
 
+  // Chart
   const days=Object.keys(DAILY_RAW).filter(d=>d>=from&&d<=to).sort();
   const inc2=days.map(d=>DAILY_RAW[d]?DAILY_RAW[d].inc:0);
   const exp2=days.map(d=>DAILY_RAW[d]?DAILY_RAW[d].exp:0);
@@ -741,6 +809,7 @@ function applyFilter(from,to,label){
     }
   });
 
+  // Table
   page=1;sCol=-1;sAsc=true;
   const sb=document.getElementById('searchBox');
   if(sb) sb.value='';
@@ -748,6 +817,7 @@ function applyFilter(from,to,label){
   renderT();renderPgn();
 }
 
+// ── SEARCH ──
 function searchTable(q) {
   const kw = q.trim().toLowerCase();
   const [f,t] = activePeriod;
@@ -766,7 +836,9 @@ function searchTable(q) {
   page=1; renderT(); renderPgn();
 }
 
-let viewMode = 'summary';
+// ── TABLE VIEW MODE ──
+let viewMode = 'summary'; // 'summary' | 'detail'
+
 function setView(mode, btn) {
   viewMode = mode;
   document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));
@@ -790,6 +862,7 @@ function renderHead() {
       <th>สถานะ</th>
     </tr>`;
   } else {
+    // detail view — 2 row header
     el.innerHTML = `
     <tr>
       <th rowspan="2" class="sortable th-fix" onclick="sortT(0)">วันที่<span class="si"></span></th>
@@ -811,6 +884,7 @@ function renderHead() {
   }
 }
 
+// ── TABLE ──
 function sortT(col){
   const ths=document.querySelectorAll('#tblHead th');
   ths.forEach(th=>th.classList.remove('sa','sd'));
@@ -856,9 +930,11 @@ function renderT(){
       </tr>`;
     }).join('');
   } else {
+    // detail view — pivot รายการ → columns
     document.getElementById('tbody').innerHTML = sl.map(r=>{
       const loss=r[7]==='ขาดทุน';
       const coShort = r[9] ? (r[9].length>16 ? r[9].substring(0,16)+'…' : r[9]) : '—';
+      // r[11] = breakdown map {รายการ: {inc, exp}}
       const bk = r[11] || {};
       const incCells = INC_COLS.map(c => fmtCell(bk[c]?.inc||0)).join('');
       const incOther = fmtCell(bk['__incOther']||0);
@@ -881,7 +957,6 @@ function renderT(){
   const tot=data.length;
   document.getElementById('tblinfo').textContent=`แสดง ${s+1}–${Math.min(e,tot)} จาก ${tot} รายการ`;
 }
-
 function renderPgn(){
   const tot=data.length,pages=Math.ceil(tot/perPage);
   const pg=document.getElementById('pgn');
@@ -898,7 +973,6 @@ function renderPgn(){
   h+=`<button class="pb" onclick="go(${page+1})" ${page===pages?'disabled':''}>ถัดไป ›</button>`;
   pg.innerHTML=h;
 }
-
 function go(p){
   const pages=Math.ceil(data.length/perPage);
   if(p<1||p>pages)return;
@@ -906,6 +980,7 @@ function go(p){
   document.querySelector('.card:last-child').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// ── INIT ── fetch data on load
 fetchSheetData();
 </script>
 </body>
