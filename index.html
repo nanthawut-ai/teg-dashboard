@@ -126,15 +126,15 @@ body{font-family:'Sarabun','Segoe UI',sans-serif;background:#F0EEE9;color:#1a1a1
 .pp-wrap{display:flex;align-items:center;gap:6px;font-size:12px;color:#777}
 .pp-wrap select{font-size:12px;padding:4px 7px;border:1px solid #ddd;border-radius:7px;background:#fff;cursor:pointer}
 .tbl-info{font-size:11px;color:#bbb}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{font-size:10px;color:#aaa;text-align:left;padding:8px 10px;border-bottom:2px solid #f0f0f0;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fafafa}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{font-size:10px;color:#777;text-align:left;padding:7px 8px;border-bottom:1px solid #e8e8e8;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:#fafafa}
 th.sortable{cursor:pointer;user-select:none}
 th.sortable:hover{color:#333;background:#f0eeea}
 .si{margin-left:3px;font-size:9px;color:#ddd}
 th.sa .si::after{content:'▲';color:#1D9E75}
 th.sd .si::after{content:'▼';color:#E24B4A}
 th:not(.sa):not(.sd) .si::after{content:'⇅'}
-tbody td{padding:9px 10px;border-bottom:1px solid #f7f7f7;color:#333}
+tbody td{padding:7px 8px;border-bottom:1px solid #f7f7f7;color:#333}
 tbody tr:hover td{background:#fafafa}
 td.num{text-align:right;font-variant-numeric:tabular-nums}
 td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
@@ -145,6 +145,22 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
 .tag-AW{background:#EFF6FF;color:#2563EB}
 .tag-SEA{background:#ECFDF5;color:#065F46}
 .tag-Others{background:#F5F3FF;color:#6D28D9}
+/* 2-row header */
+.th-group{text-align:center;font-size:10px;font-weight:700;padding:5px 4px;border-bottom:none}
+.th-inc{background:#EEF9F4;color:#0F6E56;border-bottom:2px solid #1D9E75}
+.th-exp{background:#FEF2F2;color:#991B1B;border-bottom:2px solid #E24B4A}
+.th-fix{vertical-align:middle}
+thead tr:first-child th{border-bottom:none}
+thead tr:last-child th{border-top:1px solid #e8e8e8}
+td.inc-col{background:#fafffe}
+td.exp-col{background:#fffafa}
+/* toggle view button */
+.view-toggle{display:flex;background:#f4f3f0;border-radius:8px;padding:3px;gap:2px}
+.vt-btn{font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:transparent;color:#666;cursor:pointer;transition:all .15s;white-space:nowrap}
+.vt-btn:hover{background:#e8e7e4}
+.vt-btn.active{background:#111;color:#fff;font-weight:500}
+/* zero cell */
+td.zero{color:#ddd}
 .pagination{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:14px;flex-wrap:wrap}
 .pb{font-size:12px;padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#555;cursor:pointer;min-width:34px;text-align:center;transition:all .12s}
 .pb:hover:not(:disabled){border-color:#aaa;background:#f5f5f5}
@@ -297,7 +313,13 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
 <!-- TABLE -->
 <div class="card">
   <div class="tbl-header">
-    <div class="sec-label" style="margin-bottom:0">📋 รายละเอียด Shipment</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="sec-label" style="margin-bottom:0">📋 รายละเอียด Shipment</div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setView('summary',this)">📊 สรุป</button>
+        <button class="vt-btn" onclick="setView('detail',this)">📋 รายละเอียด</button>
+      </div>
+    </div>
     <div class="tbl-right">
       <div style="position:relative">
         <input type="text" id="searchBox" placeholder="🔍 ค้นหา Shipment ID..." oninput="searchTable(this.value)"
@@ -315,19 +337,8 @@ td.pf{font-weight:600}.td-pos{color:#0F6E56}.td-neg{color:#C0392B}
     </div>
   </div>
   <div style="overflow-x:auto">
-    <table>
-      <thead><tr>
-        <th class="sortable" onclick="sortT(0)">วันที่<span class="si"></span></th>
-        <th class="sortable" onclick="sortT(1)">Shipment ID<span class="si"></span></th>
-        <th class="sortable" onclick="sortT(2)">ประเภท<span class="si"></span></th>
-        <th class="sortable" onclick="sortT(8)">รายการ<span class="si"></span></th>
-        <th class="sortable" onclick="sortT(9)">Co., Ltd.<span class="si"></span></th>
-        <th class="sortable" style="text-align:right" onclick="sortT(3)">รายรับ (฿)<span class="si"></span></th>
-        <th class="sortable" style="text-align:right" onclick="sortT(4)">รายจ่าย (฿)<span class="si"></span></th>
-        <th class="sortable" style="text-align:right" onclick="sortT(5)">กำไร (฿)<span class="si"></span></th>
-        <th class="sortable" style="text-align:right" onclick="sortT(6)">Margin<span class="si"></span></th>
-        <th>สถานะ</th>
-      </tr></thead>
+    <table id="mainTable">
+      <thead id="tblHead"></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
@@ -344,6 +355,12 @@ const thDate = s => new Date(s).toLocaleDateString('th-TH',{day:'numeric',month:
 const SHEET_ID  = '1F6Bgq-nk2r-wk3XZic86SXvlEO9xTtbUs0DbdYogpso';
 const API_KEY   = 'AIzaSyA30kMkayNWqFb6DYze1ahc6pOZaAGSEfc';
 const SHEET_NAME = 'TEG Cargo';
+
+// ── Income/Expense column mapping ──
+const INC_COLS = ['ค่านำเข้า','ค่าส่งแฟลซ','ฝากโอน','ค่าบริการใบขน'];
+const EXP_COLS = ['ค่าเคลียร์ตู้','ค่าแลกD/O','ค่าภาษีอากร','โอนคืนค่านำเข้า',
+                  'ค่าปล่อยตู้','โอนคืนค่าบริการ','ขนส่งรือฝั่งจีน','ขนส่งรือฝีั่งจืน',
+                  'โอนคืนลูกค้าชำระเกิน','หัวลาก','ค่าเช่าโกดัง','ค่ามัดจำตู้'];
 
 let RAW = [];
 let DAILY_RAW = {};
@@ -409,17 +426,13 @@ async function fetchSheetData() {
 function processData(rows) {
   if(rows.length < 2) return;
 
-  // detect header positions — col 7 is Co.,Ltd (TEG/8168/ทวีพร)
-  // Header row: Date(0) ShipID(1) รายการ(2) ลูกค้า(3) Income(4) Expense(5) Owner(6) Co.,Ltd(7) ...
-  // Find by exact header match first, fallback to col 7
+  // detect header — Col 7 = Co.,Ltd
   const hdr = rows[0].map(h=>(h||'').toString().trim());
   let coIdx = hdr.findIndex(h => /^co[\.,]/i.test(h) || h.toLowerCase()==='co., ltd.' || h.toLowerCase()==='co,ltd');
-  if(coIdx === -1) {
-    // fallback: col 7 is typically TEG/8168/ทวีพร
-    coIdx = 7;
-  }
+  if(coIdx === -1) coIdx = 7;
 
-  RAW = [];
+  // ── Step 1: read raw transactions ──
+  const TXN = []; // raw transactions for daily cash flow
   DAILY_RAW = {};
 
   let lastDate = '';
@@ -429,32 +442,85 @@ function processData(rows) {
     const dateStr = lastDate;
     if(!dateStr) return;
 
-    const shipID  = (r[1]||'').toString().trim();
+    const shipID = (r[1]||'').toString().trim();
     if(!shipID) return;
 
     const income  = parseNum(r[4]);
     const expense = parseNum(r[5]);
-    const typeRaw = (r[13]||r[14]||'Others').toString().trim();
-    const type    = typeRaw || 'Others';
-    const itemRaw = (r[2]||'').toString().trim();
-    const coRaw   = (r[coIdx]||'').toString().trim();
-    const custRaw = (r[3]||'').toString().trim();
-    const profit  = income - expense;
-    const margin  = income > 0 ? Math.round(profit/income*1000)/10 : null;
-    const status  = profit >= 0 ? 'กำไร' : 'ขาดทุน';
+    const type    = (r[13]||r[14]||'Others').toString().trim() || 'Others';
+    const item    = (r[2]||'').toString().trim();
+    const co      = (r[coIdx]||'').toString().trim();
+    const cust    = (r[3]||'').toString().trim();
 
-    RAW.push([dateStr, shipID, type, income, expense, profit, margin, status, itemRaw, coRaw, custRaw]);
+    TXN.push({dateStr, shipID, type, income, expense, item, co, cust});
 
+    // accumulate daily totals
     if(!DAILY_RAW[dateStr]) DAILY_RAW[dateStr] = {inc:0, exp:0};
     DAILY_RAW[dateStr].inc += income;
     DAILY_RAW[dateStr].exp += expense;
   });
 
-  // build unique lists for dropdowns
+  // ── Step 2: Group by ShipmentID → RAW ──
+  // RAW: [firstDate, shipID, type, totalIncome, totalExpense, profit, margin, status, items, cos, custs]
+  const shipMap = new Map();
+  TXN.forEach(t => {
+    if(!shipMap.has(t.shipID)) {
+      shipMap.set(t.shipID, {
+        firstDate: t.dateStr, lastDate: t.dateStr,
+        type: t.type, totalInc: 0, totalExp: 0,
+        items: new Set(), cos: new Set(), custs: new Set(),
+        breakdown: {}
+      });
+    }
+    const s = shipMap.get(t.shipID);
+    s.totalInc += t.income;
+    s.totalExp += t.expense;
+    if(t.dateStr > s.lastDate) s.lastDate = t.dateStr;
+    if(t.item) s.items.add(t.item);
+    if(t.co)   s.cos.add(t.co);
+    if(t.cust) s.custs.add(t.cust);
+
+    // breakdown for detail view
+    const isKnownInc = INC_COLS.includes(t.item);
+    const isKnownExp = EXP_COLS.includes(t.item) || EXP_COLS.includes(t.item.trim());
+    if(t.income > 0) {
+      const key = isKnownInc ? t.item : '__incOther';
+      if(!s.breakdown[key]) s.breakdown[key] = {inc:0, exp:0};
+      s.breakdown[key].inc += t.income;
+    }
+    if(t.expense > 0) {
+      const key = isKnownExp ? t.item : '__expOther';
+      if(!s.breakdown[key]) s.breakdown[key] = {inc:0, exp:0};
+      s.breakdown[key].exp += t.expense;
+    }
+  });
+
+  RAW = [];
+  shipMap.forEach((s, shipID) => {
+    const profit = s.totalInc - s.totalExp;
+    const margin = s.totalInc > 0 ? Math.round(profit/s.totalInc*1000)/10 : null;
+    const status = profit >= 0 ? 'กำไร' : 'ขาดทุน';
+    RAW.push([
+      s.firstDate,              // 0 date
+      shipID,                   // 1 shipID
+      s.type,                   // 2 type
+      s.totalInc,               // 3 income total
+      s.totalExp,               // 4 expense total
+      profit,                   // 5 profit
+      margin,                   // 6 margin
+      status,                   // 7 status
+      [...s.items].join(', '),  // 8 รายการ
+      [...s.cos].join(', '),    // 9 co.,ltd
+      [...s.custs].join(', '),  // 10 ลูกค้า
+      s.breakdown               // 11 breakdown map
+    ]);
+  });
+
+  // ── Step 3: build dropdown options ──
   const allTypes = ['EK','AW','SEA','Others'];
   const typeLabels = {'EK':'🚛 EK (ทางรถ)','AW':'✈ AW (ทางอากาศ)','SEA':'🚢 SEA (ทางเรือ)','Others':'📦 Others'};
-  allItems = [...new Set(RAW.map(r=>r[8]).filter(Boolean))].sort();
-  allCos   = [...new Set(RAW.map(r=>r[9]).filter(Boolean))].sort();
+  allItems = [...new Set(TXN.map(t=>t.item).filter(Boolean))].sort();
+  allCos   = [...new Set(TXN.map(t=>t.co).filter(Boolean))].sort();
   selTypes = new Set(allTypes);
   selItems = new Set(allItems);
   selCos   = new Set(allCos);
@@ -462,14 +528,12 @@ function processData(rows) {
   buildDropdown('item', allItems, selItems);
   buildDropdown('co',   allCos,   selCos);
 
-  // Set period bounds from actual data
+  // ── Step 4: date bounds ──
   const dates = Object.keys(DAILY_RAW).sort();
   if(dates.length === 0) return;
   DATA_MIN = dates[0];
   DATA_MAX = dates[dates.length-1];
 
-
-  // Update "today" to last date in data
   TODAY = DATA_MAX;
 
   // Update last updated label
@@ -645,8 +709,11 @@ function applyFilter(from,to,label){
   data = RAW.filter(r=>{
     const inDate = r[0]>=from && r[0]<=to;
     const inType = selTypes.size===0 || selTypes.has(r[2]);
-    const inItem = selItems.size===0 || selItems.size===allItems.length || selItems.has(r[8]);
-    const inCo   = selCos.size===0   || selCos.size===allCos.length    || selCos.has(r[9]);
+    // for grouped rows, items/cos are comma-joined strings — check if any selected value is included
+    const inItem = selItems.size===0 || selItems.size===allItems.length ||
+                   [...selItems].some(v => r[8].includes(v));
+    const inCo   = selCos.size===0   || selCos.size===allCos.length    ||
+                   [...selCos].some(v => r[9].includes(v));
     return inDate && inType && inItem && inCo;
   });
 
@@ -757,50 +824,136 @@ function searchTable(q) {
   data = RAW.filter(r => {
     const inDate   = r[0]>=f && r[0]<=t;
     const inType   = selTypes.size===0 || selTypes.has(r[2]);
-    const inItem   = selItems.size===0 || selItems.size===allItems.length || selItems.has(r[8]);
-    const inCo     = selCos.size===0   || selCos.size===allCos.length    || selCos.has(r[9]);
-    const inSearch = !kw || r[1].toLowerCase().includes(kw) || r[2].toLowerCase().includes(kw)
-                         || r[8].toLowerCase().includes(kw) || r[9].toLowerCase().includes(kw)
+    const inItem   = selItems.size===0 || selItems.size===allItems.length || [...selItems].some(v=>r[8].includes(v));
+    const inCo     = selCos.size===0   || selCos.size===allCos.length    || [...selCos].some(v=>r[9].includes(v));
+    const inSearch = !kw || r[1].toLowerCase().includes(kw)
+                         || r[2].toLowerCase().includes(kw)
+                         || r[8].toLowerCase().includes(kw)
+                         || r[9].toLowerCase().includes(kw)
                          || r[10].toLowerCase().includes(kw);
     return inDate && inType && inItem && inCo && inSearch;
   });
   page=1; renderT(); renderPgn();
 }
 
+// ── TABLE VIEW MODE ──
+let viewMode = 'summary'; // 'summary' | 'detail'
+
+function setView(mode, btn) {
+  viewMode = mode;
+  document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderT();
+}
+
+function renderHead() {
+  const el = document.getElementById('tblHead');
+  if(!el) return;
+  if(viewMode === 'summary') {
+    el.innerHTML = `<tr>
+      <th class="sortable th-fix" onclick="sortT(0)">วันที่<span class="si"></span></th>
+      <th class="sortable th-fix" onclick="sortT(1)">Shipment ID<span class="si"></span></th>
+      <th class="sortable th-fix" onclick="sortT(2)">ประเภท<span class="si"></span></th>
+      <th class="sortable th-fix" onclick="sortT(9)">Co., Ltd.<span class="si"></span></th>
+      <th class="sortable th-inc" style="text-align:right" onclick="sortT(3)">รายรับรวม (฿)<span class="si"></span></th>
+      <th class="sortable th-exp" style="text-align:right" onclick="sortT(4)">รายจ่ายรวม (฿)<span class="si"></span></th>
+      <th class="sortable" style="text-align:right" onclick="sortT(5)">กำไร (฿)<span class="si"></span></th>
+      <th class="sortable" style="text-align:right" onclick="sortT(6)">Margin<span class="si"></span></th>
+      <th>สถานะ</th>
+    </tr>`;
+  } else {
+    // detail view — 2 row header
+    el.innerHTML = `
+    <tr>
+      <th rowspan="2" class="sortable th-fix" onclick="sortT(0)">วันที่<span class="si"></span></th>
+      <th rowspan="2" class="sortable th-fix" onclick="sortT(1)">Shipment ID<span class="si"></span></th>
+      <th rowspan="2" class="sortable th-fix" onclick="sortT(2)">ประเภท<span class="si"></span></th>
+      <th rowspan="2" class="sortable th-fix" onclick="sortT(9)">Co., Ltd.<span class="si"></span></th>
+      <th colspan="${INC_COLS.length+1}" class="th-group th-inc">รายรับ</th>
+      <th colspan="${EXP_COLS.length+1}" class="th-group th-exp">รายจ่าย</th>
+      <th rowspan="2" class="sortable" style="text-align:right" onclick="sortT(5)">กำไร (฿)<span class="si"></span></th>
+      <th rowspan="2" class="sortable" style="text-align:right" onclick="sortT(6)">Margin<span class="si"></span></th>
+      <th rowspan="2">สถานะ</th>
+    </tr>
+    <tr>
+      ${INC_COLS.map(c=>`<th class="th-inc" style="text-align:right">${c}</th>`).join('')}
+      <th class="th-inc" style="text-align:right">รายรับอื่นๆ</th>
+      ${EXP_COLS.map(c=>`<th class="th-exp" style="text-align:right">${c}</th>`).join('')}
+      <th class="th-exp" style="text-align:right">รายจ่ายอื่นๆ</th>
+    </tr>`;
+  }
+}
+
 // ── TABLE ──
 function sortT(col){
-  const ths=document.querySelectorAll('thead th');
+  const ths=document.querySelectorAll('#tblHead th');
   ths.forEach(th=>th.classList.remove('sa','sd'));
-  sAsc=(sCol===col)?!sAsc:(col<=2||col===8||col===9);
+  sAsc=(sCol===col)?!sAsc:(col<=2||col===9);
   sCol=col;
-  ths.forEach((th,i)=>{ if(parseInt(th.getAttribute('onclick')?.match(/\d+/)?.[0])===col) th.classList.add(sAsc?'sa':'sd'); });
+  ths.forEach(th=>{
+    const m=th.getAttribute('onclick')?.match(/sortT\((\d+)\)/);
+    if(m && parseInt(m[1])===col) th.classList.add(sAsc?'sa':'sd');
+  });
   data.sort((a,b)=>{
     let va=a[col]??'', vb=b[col]??'';
-    if([0,1,2,8,9].includes(col)){va=va.toString().toLowerCase();vb=vb.toString().toLowerCase();}
+    if([0,1,2,9].includes(col)){va=va.toString().toLowerCase();vb=vb.toString().toLowerCase();}
     if(col===6){va=va===null?-9999:va;vb=vb===null?-9999:vb;}
     return(va<vb?-1:va>vb?1:0)*(sAsc?1:-1);
   });
   page=1;renderT();renderPgn();
 }
+
 function changePerPage(v){perPage=parseInt(v);page=1;renderT();renderPgn();}
+
 function renderT(){
+  renderHead();
   const s=(page-1)*perPage,e=s+perPage,sl=data.slice(s,e);
   const typeColor={'EK':'tag-EK','AW':'tag-AW','SEA':'tag-SEA','Others':'tag-Others'};
-  document.getElementById('tbody').innerHTML=sl.map(r=>{
-    const loss=r[7]==='ขาดทุน';
-    return`<tr>
-      <td>${thDate(r[0])}</td>
-      <td>${r[1]}</td>
-      <td><span class="type-tag ${typeColor[r[2]]||''}">${r[2]}</span></td>
-      <td>${r[8]||'—'}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r[9]||''}">${r[9]||'—'}</td>
-      <td class="num">฿${fmt(r[3])}</td>
-      <td class="num">฿${fmt(r[4])}</td>
-      <td class="num pf ${loss?'td-neg':'td-pos'}">${loss?'-฿'+fmt(Math.abs(r[5])):'฿'+fmt(r[5])}</td>
-      <td class="num">${r[6]===null?'—':r[6].toFixed(1)+'%'}</td>
-      <td><span class="badge ${loss?'bl':'bp'}">${r[7]}</span></td>
-    </tr>`;
-  }).join('');
+  const fmtCell = v => v > 0 ? `<td class="num inc-col">฿${fmt(v)}</td>`
+                    : v < 0 ? `<td class="num exp-col td-neg">-฿${fmt(Math.abs(v))}</td>`
+                    : `<td class="num zero">—</td>`;
+
+  if(viewMode === 'summary') {
+    document.getElementById('tbody').innerHTML = sl.map(r=>{
+      const loss=r[7]==='ขาดทุน';
+      const coShort = r[9] ? (r[9].length>20 ? r[9].substring(0,20)+'…' : r[9]) : '—';
+      return`<tr>
+        <td>${thDate(r[0])}</td>
+        <td><strong>${r[1]}</strong></td>
+        <td><span class="type-tag ${typeColor[r[2]]||''}">${r[2]}</span></td>
+        <td title="${r[9]||''}">${coShort}</td>
+        <td class="num inc-col">฿${fmt(r[3])}</td>
+        <td class="num exp-col">฿${fmt(r[4])}</td>
+        <td class="num pf ${loss?'td-neg':'td-pos'}">${loss?'-฿'+fmt(Math.abs(r[5])):'฿'+fmt(r[5])}</td>
+        <td class="num">${r[6]===null?'—':r[6].toFixed(1)+'%'}</td>
+        <td><span class="badge ${loss?'bl':'bp'}">${r[7]}</span></td>
+      </tr>`;
+    }).join('');
+  } else {
+    // detail view — pivot รายการ → columns
+    document.getElementById('tbody').innerHTML = sl.map(r=>{
+      const loss=r[7]==='ขาดทุน';
+      const coShort = r[9] ? (r[9].length>16 ? r[9].substring(0,16)+'…' : r[9]) : '—';
+      // r[11] = breakdown map {รายการ: {inc, exp}}
+      const bk = r[11] || {};
+      const incCells = INC_COLS.map(c => fmtCell(bk[c]?.inc||0)).join('');
+      const incOther = fmtCell(bk['__incOther']||0);
+      const expCells = EXP_COLS.map(c => fmtCell(bk[c]?.exp||0)).join('');
+      const expOther = fmtCell(bk['__expOther']||0);
+      return`<tr>
+        <td>${thDate(r[0])}</td>
+        <td><strong>${r[1]}</strong></td>
+        <td><span class="type-tag ${typeColor[r[2]]||''}">${r[2]}</span></td>
+        <td title="${r[9]||''}">${coShort}</td>
+        ${incCells}${incOther}
+        ${expCells}${expOther}
+        <td class="num pf ${loss?'td-neg':'td-pos'}">${loss?'-฿'+fmt(Math.abs(r[5])):'฿'+fmt(r[5])}</td>
+        <td class="num">${r[6]===null?'—':r[6].toFixed(1)+'%'}</td>
+        <td><span class="badge ${loss?'bl':'bp'}">${r[7]}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
   const tot=data.length;
   document.getElementById('tblinfo').textContent=`แสดง ${s+1}–${Math.min(e,tot)} จาก ${tot} รายการ`;
 }
